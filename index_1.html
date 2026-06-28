@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FrustratedMind — A space to exhale</title>
+<meta name="description" content="Anonymous. No login. No tracking. Share your frustrations, feelings, and thoughts without judgment.">
+<meta property="og:title" content="FrustratedMind — Say what you actually feel">
+<meta property="og:description" content="Anonymous. No login. No tracking. A safe space for honest feelings.">
+<meta property="og:url" content="https://frustratedmind.com">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1C1A2E;--ink-mid:#5C5977;--ink-soft:#9693A8;
+  --page:#F5F3FA;--white:#FFFFFF;
+  --border:#E4E0F0;--border-mid:#CCC8DE;
+  --mauve:#7C5CBF;--mauve-light:#EDE8FA;--mauve-mid:#B8A8E8;
+  --slate-bg:#2A273F;--r:16px;
+}
+body{font-family:'Inter',sans-serif;background:var(--page);color:var(--ink);min-height:100vh;font-size:15px;line-height:1.6;}
+
+/* HEADER */
+.site-header{background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;}
+.header-inner{max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;}
+.wordmark{font-family:'Fraunces',serif;font-size:20px;font-weight:600;letter-spacing:-0.3px;color:var(--ink);display:flex;align-items:center;gap:8px;}
+.wordmark-dot{width:8px;height:8px;border-radius:50%;background:var(--mauve);display:inline-block;}
+.header-nav{display:flex;align-items:center;gap:16px;}
+.nav-tab{font-size:14px;color:var(--ink-mid);cursor:pointer;padding:4px 0;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:'Inter',sans-serif;transition:color 0.15s,border-color 0.15s;}
+.nav-tab:hover{color:var(--ink);}
+.nav-tab.active{color:var(--mauve);border-bottom-color:var(--mauve);}
+.btn-primary{background:var(--mauve);color:#fff;border:none;padding:9px 20px;border-radius:50px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity 0.15s,transform 0.1s;display:flex;align-items:center;gap:6px;}
+.btn-primary:hover{opacity:0.88;}
+.btn-primary:active{transform:scale(0.97);}
+
+/* PAGES */
+.page{display:none;}
+.page.active{display:block;}
+
+/* HERO */
+.hero{background:var(--white);border-bottom:1px solid var(--border);padding:56px 28px 48px;text-align:center;}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:var(--mauve-light);color:var(--mauve);font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:5px 14px;border-radius:50px;margin-bottom:20px;}
+.hero-title{font-family:'Fraunces',serif;font-size:clamp(30px,5vw,52px);font-weight:300;line-height:1.15;letter-spacing:-1px;color:var(--ink);max-width:700px;margin:0 auto 16px;}
+.hero-title em{font-style:italic;color:var(--mauve);}
+.hero-sub{font-size:16px;color:var(--ink-mid);max-width:500px;margin:0 auto 32px;line-height:1.65;}
+.hero-cta{display:inline-flex;align-items:center;gap:10px;background:var(--mauve);color:#fff;padding:14px 32px;border-radius:50px;font-size:15px;font-weight:500;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:opacity 0.15s;}
+.hero-cta:hover{opacity:0.88;}
+.hero-pills{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:28px;}
+.hero-pill{font-size:12px;color:var(--ink-soft);background:var(--page);border:1px solid var(--border);padding:5px 14px;border-radius:50px;}
+
+/* LAYOUT */
+.layout{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1fr 300px;gap:28px;padding:32px 28px;align-items:start;}
+
+/* FILTER */
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;align-items:center;}
+.filter-label{font-size:12px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.06em;margin-right:4px;}
+.f-chip{padding:6px 15px;border-radius:50px;border:1px solid var(--border);background:var(--white);color:var(--ink-mid);font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;white-space:nowrap;}
+.f-chip:hover{border-color:var(--mauve-mid);color:var(--mauve);}
+.f-chip.active{background:var(--ink);border-color:var(--ink);color:#fff;}
+
+/* SEARCH */
+.search-wrap{position:relative;margin-bottom:20px;}
+.search-wrap input{width:100%;padding:11px 16px 11px 42px;border:1px solid var(--border);border-radius:12px;background:var(--white);font-size:14px;color:var(--ink);font-family:'Inter',sans-serif;outline:none;transition:border-color 0.15s;}
+.search-wrap input:focus{border-color:var(--mauve-mid);}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ink-soft);font-size:16px;pointer-events:none;}
+
+/* POSTS */
+.post-card{background:var(--white);border-radius:var(--r);border:1px solid var(--border);padding:22px 24px;margin-bottom:14px;transition:border-color 0.15s;animation:rise 0.3s ease both;}
+.post-card:hover{border-color:var(--border-mid);}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.post-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;flex-shrink:0;}
+.post-author{font-size:14px;font-weight:500;color:var(--ink);}
+.post-time{font-size:12px;color:var(--ink-soft);margin-top:1px;}
+.cat-badge{margin-left:auto;font-size:11px;font-weight:600;padding:4px 11px;border-radius:50px;white-space:nowrap;}
+.post-body{font-size:15px;color:var(--ink);line-height:1.7;margin-bottom:18px;}
+.hashtag{color:var(--mauve);font-weight:500;cursor:pointer;}
+.hashtag:hover{text-decoration:underline;}
+.post-footer{display:flex;align-items:center;gap:6px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap;}
+.rxn-btn{display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:50px;border:1px solid var(--border);background:var(--page);cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:'Inter',sans-serif;transition:all 0.15s;}
+.rxn-btn:hover{background:var(--mauve-light);border-color:var(--mauve-mid);color:var(--mauve);}
+.rxn-btn.reacted{background:var(--mauve-light);border-color:var(--mauve);color:var(--mauve);}
+.cmt-toggle{margin-left:auto;display:flex;align-items:center;gap:5px;padding:6px 13px;border-radius:50px;border:1px solid var(--border);background:none;cursor:pointer;font-size:13px;color:var(--ink-soft);font-family:'Inter',sans-serif;transition:all 0.15s;}
+.cmt-toggle:hover{background:var(--page);color:var(--ink-mid);}
+.comments-wrap{display:none;margin-top:16px;border-top:1px solid var(--border);padding-top:16px;}
+.comments-wrap.open{display:block;}
+.comment{display:flex;gap:9px;margin-bottom:12px;}
+.cmt-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;flex-shrink:0;margin-top:1px;}
+.cmt-name{font-size:12px;font-weight:600;color:var(--ink);}
+.cmt-time{font-size:11px;color:var(--ink-soft);margin-left:5px;}
+.cmt-text{font-size:13px;color:var(--ink-mid);line-height:1.55;margin-top:2px;}
+.cmt-compose{display:flex;gap:7px;margin-top:10px;}
+.cmt-compose input{flex:1;font-size:13px;padding:8px 14px;border-radius:50px;border:1px solid var(--border);background:var(--page);color:var(--ink);font-family:'Inter',sans-serif;outline:none;transition:border-color 0.15s,background 0.15s;}
+.cmt-compose input:focus{border-color:var(--mauve-mid);background:var(--white);}
+.btn-send{width:34px;height:34px;border-radius:50%;background:var(--mauve);border:none;color:#fff;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity 0.15s;}
+.btn-send:hover{opacity:0.83;}
+
+/* SIDEBAR */
+.sidebar{position:sticky;top:92px;}
+.sidebar-section{background:var(--white);border-radius:var(--r);border:1px solid var(--border);margin-bottom:16px;overflow:hidden;}
+.sidebar-head{padding:16px 20px 12px;border-bottom:1px solid var(--border);}
+.sidebar-title{font-size:13px;font-weight:600;color:var(--ink);text-transform:uppercase;letter-spacing:0.07em;}
+.invite-card{background:var(--slate-bg);border-radius:var(--r);padding:24px 20px;margin-bottom:16px;}
+.invite-icon{font-size:26px;margin-bottom:10px;}
+.invite-title{font-family:'Fraunces',serif;font-size:18px;font-weight:300;color:#fff;line-height:1.3;margin-bottom:8px;}
+.invite-title em{font-style:italic;color:var(--mauve-mid);}
+.invite-sub{font-size:13px;color:#9896B8;line-height:1.55;margin-bottom:16px;}
+.invite-btn{width:100%;background:var(--mauve);color:#fff;border:none;padding:11px;border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity 0.15s;}
+.invite-btn:hover{opacity:0.88;}
+.trending-item{display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.12s;}
+.trending-item:last-child{border-bottom:none;}
+.trending-item:hover{background:var(--page);}
+.t-rank{font-size:11px;font-weight:700;color:var(--ink-soft);min-width:16px;text-align:right;}
+.t-tag{font-size:13px;font-weight:500;color:var(--mauve);}
+.t-arrow{margin-left:auto;color:var(--border-mid);font-size:14px;}
+.rules-strip{padding:0 20px;}
+.rule-item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--ink-mid);line-height:1.5;}
+.rule-item:last-child{border-bottom:none;}
+.rule-icon{font-size:15px;flex-shrink:0;margin-top:1px;}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(28,26,46,0.5);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.2s;}
+.modal-bg.open{opacity:1;pointer-events:all;}
+.modal{background:var(--white);border-radius:20px;padding:32px;width:100%;max-width:560px;transform:translateY(14px);transition:transform 0.22s;}
+.modal-bg.open .modal{transform:translateY(0);}
+.modal-title{font-family:'Fraunces',serif;font-size:24px;font-weight:300;color:var(--ink);margin-bottom:4px;}
+.modal-title em{font-style:italic;color:var(--mauve);}
+.modal-sub{font-size:13px;color:var(--ink-soft);margin-bottom:24px;}
+.field{margin-bottom:18px;}
+.field-label{font-size:11px;font-weight:600;color:var(--ink-mid);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:7px;}
+textarea,input[type=text]{width:100%;font-family:'Inter',sans-serif;font-size:15px;color:var(--ink);border:1px solid var(--border);border-radius:10px;padding:12px 14px;background:var(--page);outline:none;resize:none;transition:border-color 0.15s,background 0.15s;}
+textarea:focus,input[type=text]:focus{border-color:var(--mauve-mid);background:var(--white);}
+textarea{min-height:120px;}
+.char-hint{font-size:11px;color:var(--ink-soft);text-align:right;margin-top:5px;}
+.cat-pills{display:flex;flex-wrap:wrap;gap:7px;}
+.cat-pill{padding:7px 14px;border-radius:50px;border:1px solid var(--border);font-size:13px;cursor:pointer;background:var(--white);color:var(--ink-mid);font-family:'Inter',sans-serif;transition:all 0.15s;}
+.cat-pill:hover{border-color:var(--mauve-mid);color:var(--mauve);}
+.cat-pill.active{background:var(--mauve);border-color:var(--mauve);color:#fff;}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:24px;}
+.btn-ghost{background:none;border:1px solid var(--border);padding:9px 20px;border-radius:50px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink-mid);}
+.btn-submit{background:var(--mauve);color:#fff;border:none;padding:10px 26px;border-radius:50px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity 0.15s;}
+.btn-submit:hover{opacity:0.88;}
+.btn-submit:disabled{opacity:0.5;cursor:not-allowed;}
+
+/* STATE */
+.state-msg{text-align:center;padding:64px 20px;color:var(--ink-soft);}
+.state-icon{font-size:38px;margin-bottom:12px;}
+.state-h{font-family:'Fraunces',serif;font-size:20px;font-weight:300;color:var(--ink-mid);margin-bottom:6px;}
+.state-p{font-size:14px;}
+.spinner{display:inline-block;width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--mauve);border-radius:50%;animation:spin 0.7s linear infinite;margin-bottom:14px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(6px);background:var(--ink);color:#fff;padding:12px 22px;border-radius:12px;font-size:14px;z-index:400;opacity:0;pointer-events:none;transition:all 0.22s;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ═══ READS PAGE ═══ */
+.reads-hero{background:var(--slate-bg);padding:52px 28px 44px;text-align:center;}
+.reads-hero-label{display:inline-flex;align-items:center;gap:6px;background:rgba(124,92,191,0.25);color:var(--mauve-mid);font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:5px 14px;border-radius:50px;margin-bottom:18px;}
+.reads-hero-title{font-family:'Fraunces',serif;font-size:clamp(26px,4vw,42px);font-weight:300;color:#fff;line-height:1.2;letter-spacing:-0.5px;max-width:600px;margin:0 auto 12px;}
+.reads-hero-title em{font-style:italic;color:var(--mauve-mid);}
+.reads-hero-sub{font-size:15px;color:#9896B8;max-width:480px;margin:0 auto;}
+
+.reads-layout{max-width:1160px;margin:0 auto;padding:36px 28px;}
+
+.reads-tabs{display:flex;gap:0;margin-bottom:32px;background:var(--white);border-radius:12px;border:1px solid var(--border);padding:5px;width:fit-content;}
+.reads-tab{padding:8px 22px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;background:none;font-family:'Inter',sans-serif;color:var(--ink-mid);transition:all 0.15s;display:flex;align-items:center;gap:7px;}
+.reads-tab:hover{color:var(--ink);}
+.reads-tab.active{background:var(--mauve);color:#fff;}
+
+.reads-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;}
+
+.article-card{background:var(--white);border-radius:14px;border:1px solid var(--border);overflow:hidden;transition:border-color 0.15s,transform 0.15s;cursor:pointer;text-decoration:none;display:block;}
+.article-card:hover{border-color:var(--mauve-mid);transform:translateY(-2px);}
+.article-thumb{width:100%;height:160px;object-fit:cover;background:var(--mauve-light);display:flex;align-items:center;justify-content:center;font-size:40px;}
+.article-body{padding:18px 20px;}
+.article-source{font-size:11px;font-weight:600;color:var(--mauve);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;}
+.article-title{font-size:15px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:8px;}
+.article-desc{font-size:13px;color:var(--ink-mid);line-height:1.55;margin-bottom:12px;}
+.article-meta{font-size:11px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;}
+.article-tag{display:inline-block;background:var(--mauve-light);color:var(--mauve);font-size:11px;font-weight:500;padding:2px 8px;border-radius:50px;margin-right:4px;}
+
+.reads-loading{text-align:center;padding:60px 20px;color:var(--ink-soft);}
+
+/* Featured article — full width */
+.article-card.featured{grid-column:1/-1;display:grid;grid-template-columns:280px 1fr;}
+.article-card.featured .article-thumb{height:100%;min-height:180px;border-radius:0;}
+.article-card.featured .article-title{font-size:18px;}
+
+/* Research strip */
+.research-section{margin-top:44px;}
+.section-label{font-size:13px;font-weight:600;color:var(--ink);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.research-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.research-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 20px;cursor:pointer;text-decoration:none;display:block;transition:border-color 0.15s;}
+.research-card:hover{border-color:var(--mauve-mid);}
+.research-label{font-size:11px;font-weight:600;color:var(--mauve);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;}
+.research-title{font-size:14px;font-weight:500;color:var(--ink);line-height:1.45;margin-bottom:6px;}
+.research-source{font-size:12px;color:var(--ink-soft);}
+.research-year{display:inline-block;background:var(--page);border:1px solid var(--border);font-size:11px;color:var(--ink-soft);padding:2px 8px;border-radius:50px;margin-left:6px;}
+
+@media(max-width:820px){
+  .layout{grid-template-columns:1fr;}
+  .sidebar{position:static;}
+  .hero-title{font-size:28px;}
+  .hero{padding:40px 20px 36px;}
+  .header-inner,.layout,.reads-layout{padding-left:16px;padding-right:16px;}
+  .reads-hero{padding:36px 16px 32px;}
+  .article-card.featured{grid-template-columns:1fr;}
+  .article-card.featured .article-thumb{height:160px;border-radius:0;}
+  .reads-tabs{width:100%;}
+  .reads-tab{flex:1;justify-content:center;padding:8px 10px;font-size:13px;}
+  .header-nav .nav-tab{font-size:13px;}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="wordmark">
+      <span class="wordmark-dot"></span>
+      FrustratedMind
+    </div>
+    <nav class="header-nav">
+      <button class="nav-tab active" onclick="showPage('community',this)">Community</button>
+      <button class="nav-tab" onclick="showPage('reads',this)">Reads &amp; Research</button>
+      <button class="btn-primary" onclick="openModal()">
+        <span style="font-size:16px;line-height:1">+</span> Share a thought
+      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══ PAGE 1: COMMUNITY ═══ -->
+<div id="page-community" class="page active">
+  <section class="hero">
+    <div class="hero-eyebrow"><span>🔒</span> Anonymous · No login · No tracking</div>
+    <h1 class="hero-title">A space to say what you<br><em>actually</em> feel</h1>
+    <p class="hero-sub">No names, no consequences. Just honest people sharing honest feelings — and others listening with empathy.</p>
+    <button class="hero-cta" onclick="openModal()">Let something out →</button>
+    <div class="hero-pills">
+      <span class="hero-pill">💼 Work stress</span>
+      <span class="hero-pill">💔 Relationship pain</span>
+      <span class="hero-pill">🧠 Mental health</span>
+      <span class="hero-pill">🏠 Family tension</span>
+      <span class="hero-pill">✨ Just life</span>
+    </div>
+  </section>
+
+  <div class="layout">
+    <main>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Search posts or #hashtags…" oninput="handleSearch()">
+      </div>
+      <div class="filter-bar">
+        <span class="filter-label">Filter</span>
+        <button class="f-chip active" onclick="setFilter('All',this)">All</button>
+        <button class="f-chip" onclick="setFilter('Work',this)">💼 Work</button>
+        <button class="f-chip" onclick="setFilter('Relationship',this)">💔 Relationship</button>
+        <button class="f-chip" onclick="setFilter('Family',this)">🏠 Family</button>
+        <button class="f-chip" onclick="setFilter('Mental Health',this)">🧠 Mental Health</button>
+        <button class="f-chip" onclick="setFilter('Life',this)">🌀 Life</button>
+        <button class="f-chip" onclick="setFilter('Random',this)">✨ Random</button>
+      </div>
+      <div id="posts-container">
+        <div class="state-msg"><div class="spinner"></div><div class="state-h">Loading posts…</div></div>
+      </div>
+    </main>
+    <aside class="sidebar">
+      <div class="invite-card">
+        <div class="invite-icon">🌬️</div>
+        <div class="invite-title">You don't have to<br>carry it <em>alone</em></div>
+        <p class="invite-sub">Whatever's weighing on you — say it here. Someone will listen. No judgment, no identity, no trace.</p>
+        <button class="invite-btn" onclick="openModal()">Share your thoughts</button>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-head"><div class="sidebar-title">🔥 Trending now</div></div>
+        <div id="trending-list"><div style="padding:14px 20px;font-size:13px;color:var(--ink-soft)">Loading…</div></div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-head"><div class="sidebar-title">This space</div></div>
+        <div class="rules-strip">
+          <div class="rule-item"><span class="rule-icon">👤</span>No accounts, no profiles — ever.</div>
+          <div class="rule-item"><span class="rule-icon">🔇</span>No ads, no algorithms pushing content.</div>
+          <div class="rule-item"><span class="rule-icon">🤍</span>Empathy only. Unkindness gets removed.</div>
+          <div class="rule-item"><span class="rule-icon">🌍</span>Open to anyone, anywhere.</div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- ═══ PAGE 2: READS & RESEARCH ═══ -->
+<div id="page-reads" class="page">
+  <div class="reads-hero">
+    <div class="reads-hero-label">📚 Curated for you</div>
+    <h2 class="reads-hero-title">Understand what you're going through — <em>with research</em></h2>
+    <p class="reads-hero-sub">Articles, studies, and insights on mindset, work culture, and the job market — to help make sense of it all.</p>
+  </div>
+
+  <div class="reads-layout">
+    <div class="reads-tabs">
+      <button class="reads-tab active" onclick="showTab('mindset',this)">🧠 Mindset</button>
+      <button class="reads-tab" onclick="showTab('work',this)">💼 Work Crisis</button>
+      <button class="reads-tab" onclick="showTab('jobs',this)">📈 Job Market</button>
+    </div>
+
+    <div id="reads-container"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-title">Say what you feel, <em>honestly</em></div>
+    <p class="modal-sub">Anonymous. Safe. No judgment. Use #hashtags to join conversations.</p>
+    <div class="field">
+      <div class="field-label">What's on your mind?</div>
+      <textarea id="post-text" placeholder="Type it out… frustration, sadness, gratitude, anything." maxlength="500" oninput="updateChar()"></textarea>
+      <div class="char-hint"><span id="char-num">0</span> / 500</div>
+    </div>
+    <div class="field">
+      <div class="field-label">Your name (optional)</div>
+      <input type="text" id="post-name" placeholder="Leave blank to post as Anonymous" maxlength="30">
+    </div>
+    <div class="field">
+      <div class="field-label">Category</div>
+      <div class="cat-pills">
+        <button class="cat-pill" onclick="selectCat(this,'Work')">💼 Work</button>
+        <button class="cat-pill" onclick="selectCat(this,'Relationship')">💔 Relationship</button>
+        <button class="cat-pill" onclick="selectCat(this,'Family')">🏠 Family</button>
+        <button class="cat-pill" onclick="selectCat(this,'Mental Health')">🧠 Mental Health</button>
+        <button class="cat-pill" onclick="selectCat(this,'Life')">🌀 Life</button>
+        <button class="cat-pill" onclick="selectCat(this,'Random')">✨ Random</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-submit" id="submit-btn" onclick="submitPost()">Post it →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── SUPABASE ── */
+const SUPABASE_URL = 'https://heoymrtsompdkxpznuab.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhlb3ltcnRzb21wZGt4cHpudWFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NTIyMzAsImV4cCI6MjA5ODIyODIzMH0.BmJfEXyjIji9lGAgT3oZhR_DKBB7kbo0GqoI_CYXe5M';
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* ── CONSTANTS ── */
+const CATS = {
+  'Work':{bg:'#FFF3E0',tx:'#8C5500',emoji:'💼'},
+  'Relationship':{bg:'#FAEAED',tx:'#8C2840',emoji:'💔'},
+  'Family':{bg:'#E5F5EE',tx:'#1E5E40',emoji:'🏠'},
+  'Mental Health':{bg:'#EDE8FA',tx:'#4A2D9A',emoji:'🧠'},
+  'Life':{bg:'#E7F0FB',tx:'#1A4A8A',emoji:'🌀'},
+  'Random':{bg:'#F3EEF8',tx:'#5C3D88',emoji:'✨'},
+};
+const AV_COLORS=['#7C5CBF','#C2516A','#4A9B72','#3A7DC9','#C47B1A','#9B5EA0','#5C8A9B'];
+const ANON=['Stargazer','Quiet Storm','Midnight','Ember','Wanderer','Echo','Solstice','Dusk','Rainfall','Cipher'];
+
+/* ── STATE ── */
+let allPosts=[],openComments={},userReactions={},activeFilter='All',selectedCat='',submitting=false;
+
+/* ── HELPERS ── */
+function uid(){return Math.random().toString(36).slice(2,9);}
+function rnd(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function avColor(s){return AV_COLORS[((s||'A').charCodeAt(0))%AV_COLORS.length];}
+function initials(n){return(n||'A').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function relTime(ts){
+  const d=(Date.now()-new Date(ts).getTime())/1000;
+  if(d<60)return'just now';if(d<3600)return Math.floor(d/60)+'m ago';
+  if(d<86400)return Math.floor(d/3600)+'h ago';return Math.floor(d/86400)+'d ago';
+}
+function parseTags(t){const r=[],re=/#(\w+)/g;let m;while((m=re.exec(t||''))!==null)r.push(m[1].toLowerCase());return[...new Set(r)];}
+function fmtBody(t){return esc(t).replace(/#(\w+)/g,'<span class="hashtag" onclick="filterByTag(\'#$1\')">#$1</span>');}
+function getSessionId(){let s=sessionStorage.getItem('fm_sid');if(!s){s=uid()+uid();sessionStorage.setItem('fm_sid',s);}return s;}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+
+/* ── PAGE NAV ── */
+function showPage(page, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(page==='reads') renderReads();
+}
+
+/* ── SUPABASE DATA ── */
+async function loadPosts(){
+  showLoading();
+  try{
+    const{data,error}=await db.from('posts')
+      .select('id,text,name,category,created_at,reactions(id,emoji,session_id),comments(id,text,name,created_at)')
+      .order('created_at',{ascending:false}).limit(100);
+    if(error)throw error;
+    allPosts=data||[];
+    const sid=getSessionId();
+    allPosts.forEach(p=>(p.reactions||[]).forEach(r=>{if(r.session_id===sid)userReactions[p.id+r.emoji]=true;}));
+    renderAll();
+  }catch(err){console.error(err);showError();}
+}
+async function submitPostToDB(text,name,category){
+  const{data,error}=await db.from('posts').insert([{text,name,category}])
+    .select('id,text,name,category,created_at,reactions(id,emoji,session_id),comments(id,text,name,created_at)').single();
+  if(error)throw error;return data;
+}
+async function toggleReactionDB(postId,emoji){
+  const key=postId+emoji,sid=getSessionId();
+  if(userReactions[key]){
+    await db.from('reactions').delete().eq('post_id',postId).eq('emoji',emoji).eq('session_id',sid);
+    delete userReactions[key];
+    const p=allPosts.find(x=>x.id===postId);
+    if(p)p.reactions=p.reactions.filter(r=>!(r.emoji===emoji&&r.session_id===sid));
+  }else{
+    const{data}=await db.from('reactions').insert([{post_id:postId,emoji,session_id:sid}]).select().single();
+    userReactions[key]=true;
+    const p=allPosts.find(x=>x.id===postId);
+    if(p&&data)p.reactions=[...(p.reactions||[]),data];
+  }
+}
+async function addCommentDB(postId,text,name){
+  const{data,error}=await db.from('comments').insert([{post_id:postId,text,name}]).select().single();
+  if(error)throw error;return data;
+}
+function subscribeRealtime(){
+  db.channel('public:posts').on('postgres_changes',{event:'INSERT',schema:'public',table:'posts'},()=>loadPosts()).subscribe();
+}
+
+/* ── RENDER COMMUNITY ── */
+function showLoading(){document.getElementById('posts-container').innerHTML='<div class="state-msg"><div class="spinner"></div><div class="state-h">Loading posts…</div></div>';}
+function showError(){document.getElementById('posts-container').innerHTML='<div class="state-msg"><div class="state-icon">⚠️</div><div class="state-h">Couldn\'t load posts</div><p class="state-p">Check your connection and refresh.</p></div>';}
+function getFiltered(){
+  const q=document.getElementById('search-input').value.toLowerCase().trim();
+  let list=[...allPosts];
+  if(activeFilter!=='All')list=list.filter(p=>p.category===activeFilter);
+  if(q)list=list.filter(p=>(p.text||'').toLowerCase().includes(q)||(p.name||'').toLowerCase().includes(q)||(p.category||'').toLowerCase().includes(q));
+  return list;
+}
+function renderAll(){renderPosts();renderTrending();}
+function renderPosts(){
+  const c=document.getElementById('posts-container');
+  const list=getFiltered();
+  if(!list.length){c.innerHTML='<div class="state-msg"><div class="state-icon">🌙</div><div class="state-h">Nothing here yet</div><p class="state-p">Be the first to let something out.</p></div>';return;}
+  c.innerHTML=list.map(post=>{
+    const cs=CATS[post.category]||CATS['Random'],av=avColor(post.name);
+    const rxn={'❤️':0,'🤝':0,'🤗':0,'👎':0};
+    (post.reactions||[]).forEach(r=>{if(rxn[r.emoji]!==undefined)rxn[r.emoji]++;});
+    const cmts=post.comments||[],isOpen=openComments[post.id];
+    const cmtsHtml=isOpen?`<div class="comments-wrap open">${cmts.map(cm=>`
+      <div class="comment">
+        <div class="cmt-avatar" style="background:${avColor(cm.name)}">${initials(cm.name)}</div>
+        <div><span class="cmt-name">${esc(cm.name)}</span><span class="cmt-time">${relTime(cm.created_at)}</span>
+        <div class="cmt-text">${esc(cm.text)}</div></div></div>`).join('')}
+      <div class="cmt-compose">
+        <input type="text" id="ci-${post.id}" placeholder="Add a kind word…" maxlength="200" onkeydown="if(event.key==='Enter')addComment('${post.id}')">
+        <button class="btn-send" onclick="addComment('${post.id}')">↑</button>
+      </div></div>`:'<div class="comments-wrap"></div>';
+    return`<div class="post-card">
+      <div class="post-head">
+        <div class="avatar" style="background:${av}">${initials(post.name)}</div>
+        <div><div class="post-author">${esc(post.name||'Anonymous')}</div><div class="post-time">${relTime(post.created_at)}</div></div>
+        <span class="cat-badge" style="background:${cs.bg};color:${cs.tx}">${cs.emoji} ${post.category}</span>
+      </div>
+      <div class="post-body">${fmtBody(post.text)}</div>
+      <div class="post-footer">
+        ${Object.entries(rxn).map(([e,n])=>`<button class="rxn-btn ${userReactions[post.id+e]?'reacted':''}" onclick="handleReaction('${post.id}','${e}')">${e} ${n}</button>`).join('')}
+        <button class="cmt-toggle" onclick="toggleComments('${post.id}')">💬 ${cmts.length?cmts.length+' ':''}${isOpen?'hide':'reply'}</button>
+      </div>${cmtsHtml}</div>`;
+  }).join('');
+}
+function renderTrending(){
+  const el=document.getElementById('trending-list');
+  const counts={};
+  allPosts.forEach(p=>parseTags(p.text).forEach(t=>{counts[t]=(counts[t]||0)+1;}));
+  const items=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  if(!items.length){el.innerHTML='<div style="padding:14px 20px;font-size:13px;color:var(--ink-soft)">No trends yet!</div>';return;}
+  el.innerHTML=items.map(([tag],i)=>`<div class="trending-item" onclick="filterByTag('#${tag}')"><span class="t-rank">${i+1}</span><span class="t-tag">#${tag}</span><span class="t-arrow">›</span></div>`).join('');
+}
+
+/* ── USER ACTIONS ── */
+function openModal(){document.getElementById('modal').classList.add('open');setTimeout(()=>document.getElementById('post-text').focus(),220);}
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('post-text').value='';document.getElementById('post-name').value='';
+  document.getElementById('char-num').textContent='0';
+  document.querySelectorAll('.cat-pill').forEach(c=>c.classList.remove('active'));selectedCat='';
+}
+function closeModalOutside(e){if(e.target===document.getElementById('modal'))closeModal();}
+function updateChar(){document.getElementById('char-num').textContent=document.getElementById('post-text').value.length;}
+function selectCat(el,cat){document.querySelectorAll('.cat-pill').forEach(c=>c.classList.remove('active'));el.classList.add('active');selectedCat=cat;}
+function setFilter(cat,el){
+  activeFilter=cat;document.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');
+  document.getElementById('search-input').value='';renderPosts();
+}
+function filterByTag(tag){document.getElementById('search-input').value=tag;handleSearch();}
+function handleSearch(){renderPosts();}
+function toggleComments(pid){openComments[pid]=!openComments[pid];renderPosts();}
+
+async function submitPost(){
+  if(submitting)return;
+  const text=document.getElementById('post-text').value.trim();
+  if(!text){showToast('Write something first');return;}
+  const name=document.getElementById('post-name').value.trim()||rnd(ANON);
+  const category=selectedCat||'Random';
+  submitting=true;const btn=document.getElementById('submit-btn');btn.textContent='Posting…';btn.disabled=true;
+  try{
+    const newPost=await submitPostToDB(text,name,category);
+    allPosts.unshift(newPost);closeModal();renderAll();showToast('Your feelings are heard 🤍');
+  }catch(err){console.error(err);showToast('Something went wrong — try again');}
+  finally{submitting=false;btn.textContent='Post it →';btn.disabled=false;}
+}
+async function handleReaction(postId,emoji){
+  try{await toggleReactionDB(postId,emoji);renderPosts();}catch(err){console.error(err);}
+}
+async function addComment(postId){
+  const inp=document.getElementById('ci-'+postId);if(!inp)return;
+  const text=inp.value.trim();if(!text)return;
+  const name=rnd(ANON);inp.value='';
+  try{
+    const newCmt=await addCommentDB(postId,text,name);
+    const post=allPosts.find(p=>p.id===postId);
+    if(post)post.comments=[...(post.comments||[]),newCmt];
+    openComments[postId]=true;renderPosts();
+    setTimeout(()=>{const el=document.getElementById('ci-'+postId);if(el)el.focus();},30);
+  }catch(err){console.error(err);showToast('Could not post comment — try again');}
+}
+
+/* ══════════════════════════════════════════
+   READS & RESEARCH DATA
+══════════════════════════════════════════ */
+const READS = {
+  mindset: {
+    featured: {
+      emoji:'🧠',
+      source:'Harvard Business Review',
+      title:'The Science of Building Resilience When Work Feels Impossible',
+      desc:'Researchers found that people who reframe adversity as a challenge — rather than a threat — show measurably better outcomes in wellbeing and performance over time.',
+      tag:'Resilience',
+      year:'2024',
+      url:'https://hbr.org/2023/01/how-to-build-resilience-at-work'
+    },
+    articles:[
+      {emoji:'💭',source:'Psychology Today',title:'Why You Feel Empty Even When Life Looks Fine',desc:'The hidden emotional labor of keeping up appearances and what to do when your inner world doesn\'t match your outer one.',tag:'Mental Health',year:'2024',url:'https://www.psychologytoday.com/us/blog/emotional-fitness'},
+      {emoji:'🔄',source:'MIT Sloan Review',title:'How Chronic Stress Rewires Your Brain — and How to Reverse It',desc:'New neuroscience shows that sustained workplace stress physically alters neural pathways. The good news: recovery is possible and measurable.',tag:'Neuroscience',year:'2024',url:'https://sloanreview.mit.edu/article/the-stress-performance-paradox/'},
+      {emoji:'🌱',source:'Greater Good Science Center',title:'The Power of Self-Compassion Over Self-Criticism',desc:'Studies from UC Berkeley show self-compassion — not self-discipline — is the strongest predictor of bouncing back after failure.',tag:'Wellbeing',year:'2023',url:'https://greatergood.berkeley.edu/topic/self-compassion'},
+      {emoji:'😶',source:'The Atlantic',title:'The Quiet Crisis of Emotional Numbness at Work',desc:'A growing number of people describe feeling nothing — not burned out, not sad, just flat. What experts say is happening and why it matters.',tag:'Burnout',year:'2024',url:'https://www.theatlantic.com/health/'},
+      {emoji:'🧘',source:'American Psychological Association',title:'Mindfulness at Work: What the Research Actually Shows',desc:'Separating evidence-based mindfulness interventions from corporate wellness theatre — and what actually moves the needle on stress.',tag:'Research',year:'2023',url:'https://www.apa.org/topics/mindfulness'},
+    ],
+    research:[
+      {label:'Study',title:'Psychological Safety and Team Performance',source:'Google Project Aristotle',year:'2023',url:'https://rework.withgoogle.com/print/guides/5721312655835136/'},
+      {label:'Report',title:'Global Burnout Index: 67% of Workers Report Burnout',source:'Asana Anatomy of Work',year:'2024',url:'https://asana.com/resources/anatomy-of-work'},
+      {label:'Study',title:'The Link Between Chronic Stress and Cognitive Decline',source:'Stanford Medicine',year:'2023',url:'https://med.stanford.edu/news.html'},
+      {label:'Research',title:'Why Humans Are Wired to Ruminate — and How to Stop',source:'Yale University',year:'2024',url:'https://news.yale.edu/'},
+    ]
+  },
+  work: {
+    featured: {
+      emoji:'🔥',
+      source:'The Guardian',
+      title:'The Burnout Generation: Why Work Has Never Felt This Exhausting',
+      desc:'Across industries and age groups, a generation of workers is hitting a wall. This deep investigation explores the systemic causes — and what recovery actually looks like.',
+      tag:'Burnout',
+      year:'2024',
+      url:'https://www.theguardian.com/society/burnout'
+    },
+    articles:[
+      {emoji:'🏢',source:'BBC Worklife',title:'The Rise of "Quiet Quitting" — and What It Really Means',desc:'Millions of workers are doing the bare minimum. Experts say it\'s not laziness — it\'s a rational response to broken workplace contracts.',tag:'Culture',year:'2024',url:'https://www.bbc.com/worklife/'},
+      {emoji:'📉',source:'Wall Street Journal',title:'Return to Office Mandates Are Backfiring. Here\'s the Data.',desc:'New research shows forced RTO policies correlate with increased attrition among high performers — and lower engagement across the board.',tag:'Remote Work',year:'2024',url:'https://www.wsj.com/business/'},
+      {emoji:'😤',source:'Harvard Business Review',title:'Why Toxic Managers Survive — and What HR Gets Wrong',desc:'A landmark study of 60,000 managers found toxic behavior is rarely punished when productivity numbers look good. The cost to teams is invisible — until it isn\'t.',tag:'Management',year:'2023',url:'https://hbr.org/topic/leadership'},
+      {emoji:'⏰',source:'MIT Technology Review',title:'AI Is Changing What Work Feels Like — Not Just Who Does It',desc:'Beyond job displacement, researchers are tracking how AI-assisted work is increasing cognitive load and stress for the workers who remain.',tag:'Future of Work',year:'2024',url:'https://www.technologyreview.com/topic/work/'},
+      {emoji:'💸',source:'Fortune',title:'The Real Cost of a Bad Boss: $750 Billion Per Year',desc:'New economic analysis quantifies what bad management costs the US economy. The toll on individuals is much harder to put a number on.',tag:'Leadership',year:'2024',url:'https://fortune.com/section/leadership/'},
+    ],
+    research:[
+      {label:'Report',title:'State of the Global Workplace 2024',source:'Gallup',year:'2024',url:'https://www.gallup.com/workplace/349484/state-of-the-global-workplace.aspx'},
+      {label:'Study',title:'Job Demands-Resources Model: Updated Evidence',source:'Journal of Applied Psychology',year:'2023',url:'https://psycnet.apa.org/PsycARTICLES/journal/apl/'},
+      {label:'Survey',title:'77% of Workers Have Experienced Burnout at Current Job',source:'Deloitte Insights',year:'2024',url:'https://www2.deloitte.com/us/en/insights/topics/talent/workplace-burnout-survey.html'},
+      {label:'Research',title:'Psychological Contract Breach and Employee Disengagement',source:'Journal of Organizational Behavior',year:'2023',url:'https://onlinelibrary.wiley.com/journal/10991379'},
+    ]
+  },
+  jobs: {
+    featured: {
+      emoji:'📊',
+      source:'Financial Times',
+      title:'The Great Recalibration: What the Job Market Really Looks Like in 2024',
+      desc:'After years of turbulence — the Great Resignation, mass layoffs, AI disruption — the job market has settled into something new and harder to read. A data-driven analysis.',
+      tag:'Job Market',
+      year:'2024',
+      url:'https://www.ft.com/work-careers'
+    },
+    articles:[
+      {emoji:'🤖',source:'McKinsey Global Institute',title:'Which Jobs AI Will Replace — and Which It Will Create',desc:'New modelling suggests 30% of current tasks will be automatable by 2030. But the picture is more nuanced than headlines suggest.',tag:'AI & Jobs',year:'2024',url:'https://www.mckinsey.com/featured-insights/future-of-work'},
+      {emoji:'📉',source:'Bloomberg',title:'Tech Layoffs Haven\'t Stopped. Here\'s Where We Are Now.',desc:'A running tracker of major layoffs, the sectors hardest hit, and what the data says about hiring appetite heading into the next cycle.',tag:'Layoffs',year:'2024',url:'https://www.bloomberg.com/technology'},
+      {emoji:'🎓',source:'Pew Research Center',title:'Is a College Degree Still Worth It? What the Data Says',desc:'New longitudinal data shows the college premium is shrinking for some fields but growing for others. The picture has never been more complex.',tag:'Education',year:'2024',url:'https://www.pewresearch.org/topics/economy-work/'},
+      {emoji:'🌍',source:'World Economic Forum',title:'The Jobs of the Future: Skills That Will Matter in 2030',desc:'The WEF\'s latest report identifies the 10 fastest-growing roles globally — and the 10 that will see the steepest decline.',tag:'Future Skills',year:'2024',url:'https://www.weforum.org/reports/the-future-of-jobs-report-2023/'},
+      {emoji:'💼',source:'LinkedIn Economic Graph',title:'Hiring Slowed Everywhere. Some Industries Are Different.',desc:'LinkedIn\'s workforce data reveals which sectors are quietly hiring while others contract — and what skills are crossing industry lines.',tag:'Hiring',year:'2024',url:'https://economicgraph.linkedin.com/'},
+    ],
+    research:[
+      {label:'Report',title:'Future of Jobs Report 2024',source:'World Economic Forum',year:'2024',url:'https://www.weforum.org/reports/the-future-of-jobs-report-2023/'},
+      {label:'Data',title:'US Jobs Openings and Labor Turnover Survey (JOLTS)',source:'Bureau of Labor Statistics',year:'2024',url:'https://www.bls.gov/jlt/'},
+      {label:'Study',title:'Skills-Based Hiring: Evidence From Early Adopters',source:'Harvard Business School',year:'2024',url:'https://www.hbs.edu/managing-the-future-of-work/'},
+      {label:'Report',title:'Global Employment Trends for Youth 2024',source:'International Labour Organization',year:'2024',url:'https://www.ilo.org/global/research/global-reports/'},
+    ]
+  }
+};
+
+let activeTab = 'mindset';
+let readsRendered = false;
+
+function showTab(tab, btn){
+  activeTab = tab;
+  document.querySelectorAll('.reads-tab').forEach(t=>t.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderReads();
+}
+
+function renderReads(){
+  const c = document.getElementById('reads-container');
+  const data = READS[activeTab];
+  if(!data){ return; }
+
+  const f = data.featured;
+  const articles = data.articles;
+  const research = data.research;
+
+  c.innerHTML = `
+    <div class="reads-grid">
+      <a class="article-card featured" href="${f.url}" target="_blank" rel="noopener">
+        <div class="article-thumb" style="font-size:52px;display:flex;align-items:center;justify-content:center;background:var(--mauve-light)">${f.emoji}</div>
+        <div class="article-body">
+          <div class="article-source">${f.source} · <span class="article-tag">${f.tag}</span></div>
+          <div class="article-title">${f.title}</div>
+          <div class="article-desc">${f.desc}</div>
+          <div class="article-meta">📅 ${f.year} · Featured read</div>
+        </div>
+      </a>
+      ${articles.map(a=>`
+        <a class="article-card" href="${a.url}" target="_blank" rel="noopener">
+          <div class="article-thumb" style="font-size:44px;display:flex;align-items:center;justify-content:center;background:var(--mauve-light)">${a.emoji}</div>
+          <div class="article-body">
+            <div class="article-source">${a.source} · <span class="article-tag">${a.tag}</span></div>
+            <div class="article-title">${a.title}</div>
+            <div class="article-desc">${a.desc}</div>
+            <div class="article-meta">📅 ${a.year}</div>
+          </div>
+        </a>`).join('')}
+    </div>
+
+    <div class="research-section">
+      <div class="section-label">📄 Research & Reports</div>
+      <div class="research-grid">
+        ${research.map(r=>`
+          <a class="research-card" href="${r.url}" target="_blank" rel="noopener">
+            <div class="research-label">${r.label}</div>
+            <div class="research-title">${r.title}</div>
+            <div class="research-source">${r.source}<span class="research-year">${r.year}</span></div>
+          </a>`).join('')}
+      </div>
+    </div>`;
+}
+
+/* ── BOOT ── */
+loadPosts();
+subscribeRealtime();
+</script>
+</body>
+</html>
