@@ -9,7 +9,7 @@
 <meta property="og:description" content="Anonymous. No login. No tracking. A safe space for honest feelings.">
 <meta property="og:url" content="https://frustratedmind.com">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -46,8 +46,8 @@ body{font-family:'Inter',sans-serif;background:var(--page);color:var(--ink);min-
 /* HEADER */
 .site-header{background:var(--header-bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;transition:background 0.2s;}
 .header-inner{max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;gap:16px;}
-.wordmark{font-family:'Fraunces',serif;font-size:20px;font-weight:600;letter-spacing:-0.3px;color:var(--ink);display:flex;align-items:center;gap:8px;flex-shrink:0;}
-.wordmark-dot{width:8px;height:8px;border-radius:50%;background:var(--mauve);display:inline-block;}
+.wordmark{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;letter-spacing:-0.5px;color:var(--ink);display:flex;align-items:center;gap:10px;flex-shrink:0;line-height:1;}
+.wordmark-dot{width:9px;height:9px;border-radius:50%;background:var(--mauve);display:inline-block;margin-top:1px;flex-shrink:0;}.wordmark-text{background:linear-gradient(135deg,var(--mauve) 0%,#C2516A 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-style:italic;letter-spacing:-1px;}
 .header-nav{display:flex;align-items:center;gap:6px;flex:1;justify-content:center;}
 .nav-tab{font-size:14px;color:var(--ink-mid);cursor:pointer;padding:6px 14px;border-radius:8px;background:none;border:none;font-family:'Inter',sans-serif;transition:all 0.15s;}
 .nav-tab:hover{background:var(--mauve-light);color:var(--ink);}
@@ -267,14 +267,13 @@ textarea{min-height:120px;}
 
 <header class="site-header">
   <div class="header-inner">
-    <div class="wordmark"><span class="wordmark-dot"></span>FrustratedMind</div>
+    <div class="wordmark"><span class="wordmark-dot"></span><span class="wordmark-text">FrustratedMind</span></div>
     <nav class="header-nav">
       <button class="nav-tab active" onclick="showPage('community',this)">Community</button>
       <button class="nav-tab" onclick="showPage('reads',this)">Reads &amp; Research</button>
     </nav>
     <div class="header-actions">
       <button class="icon-btn" onclick="toggleDark()" id="dark-btn" title="Toggle dark mode">🌙</button>
-      <button class="admin-btn" onclick="openAdmin()">⚙ Admin</button>
       <button class="btn-primary" onclick="openModal()"><span style="font-size:16px;line-height:1">+</span> Share a thought</button>
     </div>
   </div>
@@ -422,7 +421,7 @@ textarea{min-height:120px;}
 /* ── SUPABASE ── */
 const SUPABASE_URL='https://heoymrtsompdkxpznuab.supabase.co';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhlb3ltcnRzb21wZGt4cHpudWFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NTIyMzAsImV4cCI6MjA5ODIyODIzMH0.BmJfEXyjIji9lGAgT3oZhR_DKBB7kbo0GqoI_CYXe5M';
-const ADMIN_PASSWORD='December@9791371001'; 
+const ADMIN_PASSWORD='FrustratedMind2024!'; /* ← change this to your own password */
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
 /* ── CONSTANTS ── */
@@ -823,6 +822,46 @@ function renderReads(){
 /* ── BOOT ── */
 loadPosts();
 subscribeRealtime();
+
+/* ── SECRET ADMIN TRIGGERS ── */
+
+/* METHOD 1: Type "adminkey" anywhere on the page (not inside a text box) */
+(function(){
+  const secret = 'adminkey';
+  let typed = '';
+  let timer;
+  document.addEventListener('keydown', function(e){
+    const tag = document.activeElement.tagName.toLowerCase();
+    if(tag === 'input' || tag === 'textarea') return; /* ignore when typing in fields */
+    typed += e.key.toLowerCase();
+    if(typed.length > secret.length) typed = typed.slice(-secret.length);
+    clearTimeout(timer);
+    timer = setTimeout(()=>{ typed=''; }, 2000); /* reset if no key for 2 seconds */
+    if(typed === secret){
+      typed = '';
+      openAdmin();
+    }
+  });
+})();
+
+/* METHOD 2: Click the logo dot 3 times within 1.5 seconds */
+(function(){
+  let clicks = 0;
+  let timer;
+  const dot = document.querySelector('.wordmark-dot');
+  if(!dot) return;
+  dot.style.cursor = 'pointer';
+  dot.addEventListener('click', function(e){
+    e.stopPropagation();
+    clicks++;
+    clearTimeout(timer);
+    timer = setTimeout(()=>{ clicks = 0; }, 1500);
+    if(clicks >= 3){
+      clicks = 0;
+      openAdmin();
+    }
+  });
+})();
 </script>
 </body>
 </html>
