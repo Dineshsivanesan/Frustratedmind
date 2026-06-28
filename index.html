@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,40 +8,65 @@
 <meta property="og:title" content="FrustratedMind — Say what you actually feel">
 <meta property="og:description" content="Anonymous. No login. No tracking. A safe space for honest feelings.">
 <meta property="og:url" content="https://frustratedmind.com">
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
+
+/* ── LIGHT THEME ── */
+:root,[data-theme="light"]{
   --ink:#1C1A2E;--ink-mid:#5C5977;--ink-soft:#9693A8;
   --page:#F5F3FA;--white:#FFFFFF;
   --border:#E4E0F0;--border-mid:#CCC8DE;
   --mauve:#7C5CBF;--mauve-light:#EDE8FA;--mauve-mid:#B8A8E8;
   --slate-bg:#2A273F;--r:16px;
+  --card-bg:#FFFFFF;--header-bg:#FFFFFF;
+  --input-bg:#F5F3FA;--shadow:rgba(28,26,46,0.06);
+  --danger:#C2516A;--danger-light:#FAEAED;
+  --success:#4A9B72;--success-light:#E5F5EE;
+  --amber:#C47B1A;--amber-light:#FEF3E2;
 }
-body{font-family:'Inter',sans-serif;background:var(--page);color:var(--ink);min-height:100vh;font-size:15px;line-height:1.6;}
+
+/* ── DARK THEME ── */
+[data-theme="dark"]{
+  --ink:#E8E5F5;--ink-mid:#A09DBF;--ink-soft:#6B6888;
+  --page:#0F0E18;--white:#1A1826;
+  --border:#2A2840;--border-mid:#3D3A5C;
+  --mauve:#9B7DE0;--mauve-light:#1E1A35;--mauve-mid:#4A3E7A;
+  --slate-bg:#13111E;--r:16px;
+  --card-bg:#1A1826;--header-bg:#13111E;
+  --input-bg:#13111E;--shadow:rgba(0,0,0,0.3);
+  --danger:#E07090;--danger-light:#2A1520;
+  --success:#5EC490;--success-light:#0F2018;
+  --amber:#E09A40;--amber-light:#231608;
+}
+
+body{font-family:'Inter',sans-serif;background:var(--page);color:var(--ink);min-height:100vh;font-size:15px;line-height:1.6;transition:background 0.2s,color 0.2s;}
 
 /* HEADER */
-.site-header{background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;}
-.header-inner{max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;}
-.wordmark{font-family:'Fraunces',serif;font-size:20px;font-weight:600;letter-spacing:-0.3px;color:var(--ink);display:flex;align-items:center;gap:8px;}
+.site-header{background:var(--header-bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;transition:background 0.2s;}
+.header-inner{max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:64px;gap:16px;}
+.wordmark{font-family:'Fraunces',serif;font-size:20px;font-weight:600;letter-spacing:-0.3px;color:var(--ink);display:flex;align-items:center;gap:8px;flex-shrink:0;}
 .wordmark-dot{width:8px;height:8px;border-radius:50%;background:var(--mauve);display:inline-block;}
-.header-nav{display:flex;align-items:center;gap:16px;}
-.nav-tab{font-size:14px;color:var(--ink-mid);cursor:pointer;padding:4px 0;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:'Inter',sans-serif;transition:color 0.15s,border-color 0.15s;}
-.nav-tab:hover{color:var(--ink);}
-.nav-tab.active{color:var(--mauve);border-bottom-color:var(--mauve);}
-.btn-primary{background:var(--mauve);color:#fff;border:none;padding:9px 20px;border-radius:50px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity 0.15s,transform 0.1s;display:flex;align-items:center;gap:6px;}
+.header-nav{display:flex;align-items:center;gap:6px;flex:1;justify-content:center;}
+.nav-tab{font-size:14px;color:var(--ink-mid);cursor:pointer;padding:6px 14px;border-radius:8px;background:none;border:none;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.nav-tab:hover{background:var(--mauve-light);color:var(--ink);}
+.nav-tab.active{color:var(--mauve);background:var(--mauve-light);font-weight:500;}
+.header-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.btn-primary{background:var(--mauve);color:#fff;border:none;padding:9px 18px;border-radius:50px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity 0.15s,transform 0.1s;display:flex;align-items:center;gap:6px;white-space:nowrap;}
 .btn-primary:hover{opacity:0.88;}
 .btn-primary:active{transform:scale(0.97);}
+.icon-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--card-bg);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all 0.15s;flex-shrink:0;}
+.icon-btn:hover{border-color:var(--mauve-mid);background:var(--mauve-light);}
+.admin-btn{font-size:13px;color:var(--ink-soft);background:none;border:1px solid var(--border);padding:6px 12px;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.admin-btn:hover{border-color:var(--mauve-mid);color:var(--mauve);}
 
 /* PAGES */
 .page{display:none;}
 .page.active{display:block;}
 
 /* HERO */
-.hero{background:var(--white);border-bottom:1px solid var(--border);padding:56px 28px 48px;text-align:center;}
+.hero{background:var(--card-bg);border-bottom:1px solid var(--border);padding:56px 28px 48px;text-align:center;}
 .hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:var(--mauve-light);color:var(--mauve);font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:5px 14px;border-radius:50px;margin-bottom:20px;}
 .hero-title{font-family:'Fraunces',serif;font-size:clamp(30px,5vw,52px);font-weight:300;line-height:1.15;letter-spacing:-1px;color:var(--ink);max-width:700px;margin:0 auto 16px;}
 .hero-title em{font-style:italic;color:var(--mauve);}
@@ -53,22 +78,18 @@ body{font-family:'Inter',sans-serif;background:var(--page);color:var(--ink);min-
 
 /* LAYOUT */
 .layout{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:1fr 300px;gap:28px;padding:32px 28px;align-items:start;}
-
-/* FILTER */
 .filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;align-items:center;}
 .filter-label{font-size:12px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.06em;margin-right:4px;}
-.f-chip{padding:6px 15px;border-radius:50px;border:1px solid var(--border);background:var(--white);color:var(--ink-mid);font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;white-space:nowrap;}
+.f-chip{padding:6px 15px;border-radius:50px;border:1px solid var(--border);background:var(--card-bg);color:var(--ink-mid);font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;white-space:nowrap;}
 .f-chip:hover{border-color:var(--mauve-mid);color:var(--mauve);}
 .f-chip.active{background:var(--ink);border-color:var(--ink);color:#fff;}
-
-/* SEARCH */
 .search-wrap{position:relative;margin-bottom:20px;}
-.search-wrap input{width:100%;padding:11px 16px 11px 42px;border:1px solid var(--border);border-radius:12px;background:var(--white);font-size:14px;color:var(--ink);font-family:'Inter',sans-serif;outline:none;transition:border-color 0.15s;}
+.search-wrap input{width:100%;padding:11px 16px 11px 42px;border:1px solid var(--border);border-radius:12px;background:var(--card-bg);font-size:14px;color:var(--ink);font-family:'Inter',sans-serif;outline:none;transition:border-color 0.15s;}
 .search-wrap input:focus{border-color:var(--mauve-mid);}
 .search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--ink-soft);font-size:16px;pointer-events:none;}
 
-/* POSTS */
-.post-card{background:var(--white);border-radius:var(--r);border:1px solid var(--border);padding:22px 24px;margin-bottom:14px;transition:border-color 0.15s;animation:rise 0.3s ease both;}
+/* POST CARDS */
+.post-card{background:var(--card-bg);border-radius:var(--r);border:1px solid var(--border);padding:22px 24px;margin-bottom:14px;transition:border-color 0.15s;animation:rise 0.3s ease both;}
 .post-card:hover{border-color:var(--border-mid);}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .post-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
@@ -79,12 +100,20 @@ body{font-family:'Inter',sans-serif;background:var(--page);color:var(--ink);min-
 .post-body{font-size:15px;color:var(--ink);line-height:1.7;margin-bottom:18px;}
 .hashtag{color:var(--mauve);font-weight:500;cursor:pointer;}
 .hashtag:hover{text-decoration:underline;}
-.post-footer{display:flex;align-items:center;gap:6px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap;}
-.rxn-btn{display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:50px;border:1px solid var(--border);background:var(--page);cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:'Inter',sans-serif;transition:all 0.15s;}
+
+/* POST FOOTER */
+.post-footer{display:flex;align-items:center;gap:5px;padding-top:14px;border-top:1px solid var(--border);flex-wrap:wrap;}
+.rxn-btn{display:flex;align-items:center;gap:4px;padding:6px 11px;border-radius:50px;border:1px solid var(--border);background:var(--page);cursor:pointer;font-size:13px;color:var(--ink-mid);font-family:'Inter',sans-serif;transition:all 0.15s;}
 .rxn-btn:hover{background:var(--mauve-light);border-color:var(--mauve-mid);color:var(--mauve);}
 .rxn-btn.reacted{background:var(--mauve-light);border-color:var(--mauve);color:var(--mauve);}
-.cmt-toggle{margin-left:auto;display:flex;align-items:center;gap:5px;padding:6px 13px;border-radius:50px;border:1px solid var(--border);background:none;cursor:pointer;font-size:13px;color:var(--ink-soft);font-family:'Inter',sans-serif;transition:all 0.15s;}
-.cmt-toggle:hover{background:var(--page);color:var(--ink-mid);}
+.post-action-btn{display:flex;align-items:center;gap:4px;padding:6px 11px;border-radius:50px;border:1px solid var(--border);background:none;cursor:pointer;font-size:12px;color:var(--ink-soft);font-family:'Inter',sans-serif;transition:all 0.15s;}
+.post-action-btn:hover{background:var(--page);color:var(--ink-mid);}
+.post-action-btn.comment-toggle{margin-left:auto;}
+.post-action-btn.flag-btn:hover{background:var(--danger-light);border-color:var(--danger);color:var(--danger);}
+.post-action-btn.share-btn:hover{background:var(--success-light);border-color:var(--success);color:var(--success);}
+.post-action-btn.flagged{background:var(--danger-light);border-color:var(--danger);color:var(--danger);}
+
+/* COMMENTS */
 .comments-wrap{display:none;margin-top:16px;border-top:1px solid var(--border);padding-top:16px;}
 .comments-wrap.open{display:block;}
 .comment{display:flex;gap:9px;margin-bottom:12px;}
@@ -93,14 +122,14 @@ body{font-family:'Inter',sans-serif;background:var(--page);color:var(--ink);min-
 .cmt-time{font-size:11px;color:var(--ink-soft);margin-left:5px;}
 .cmt-text{font-size:13px;color:var(--ink-mid);line-height:1.55;margin-top:2px;}
 .cmt-compose{display:flex;gap:7px;margin-top:10px;}
-.cmt-compose input{flex:1;font-size:13px;padding:8px 14px;border-radius:50px;border:1px solid var(--border);background:var(--page);color:var(--ink);font-family:'Inter',sans-serif;outline:none;transition:border-color 0.15s,background 0.15s;}
-.cmt-compose input:focus{border-color:var(--mauve-mid);background:var(--white);}
+.cmt-compose input{flex:1;font-size:13px;padding:8px 14px;border-radius:50px;border:1px solid var(--border);background:var(--input-bg);color:var(--ink);font-family:'Inter',sans-serif;outline:none;transition:border-color 0.15s;}
+.cmt-compose input:focus{border-color:var(--mauve-mid);}
 .btn-send{width:34px;height:34px;border-radius:50%;background:var(--mauve);border:none;color:#fff;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity 0.15s;}
 .btn-send:hover{opacity:0.83;}
 
 /* SIDEBAR */
-.sidebar{position:sticky;top:92px;}
-.sidebar-section{background:var(--white);border-radius:var(--r);border:1px solid var(--border);margin-bottom:16px;overflow:hidden;}
+.sidebar{position:sticky;top:80px;}
+.sidebar-section{background:var(--card-bg);border-radius:var(--r);border:1px solid var(--border);margin-bottom:16px;overflow:hidden;}
 .sidebar-head{padding:16px 20px 12px;border-bottom:1px solid var(--border);}
 .sidebar-title{font-size:13px;font-weight:600;color:var(--ink);text-transform:uppercase;letter-spacing:0.07em;}
 .invite-card{background:var(--slate-bg);border-radius:var(--r);padding:24px 20px;margin-bottom:16px;}
@@ -121,29 +150,54 @@ body{font-family:'Inter',sans-serif;background:var(--page);color:var(--ink);min-
 .rule-item:last-child{border-bottom:none;}
 .rule-icon{font-size:15px;flex-shrink:0;margin-top:1px;}
 
-/* MODAL */
-.modal-bg{position:fixed;inset:0;background:rgba(28,26,46,0.5);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.2s;}
+/* MODALS shared */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.2s;}
 .modal-bg.open{opacity:1;pointer-events:all;}
-.modal{background:var(--white);border-radius:20px;padding:32px;width:100%;max-width:560px;transform:translateY(14px);transition:transform 0.22s;}
+.modal{background:var(--card-bg);border-radius:20px;padding:32px;width:100%;max-width:560px;transform:translateY(14px);transition:transform 0.22s;max-height:90vh;overflow-y:auto;}
 .modal-bg.open .modal{transform:translateY(0);}
 .modal-title{font-family:'Fraunces',serif;font-size:24px;font-weight:300;color:var(--ink);margin-bottom:4px;}
 .modal-title em{font-style:italic;color:var(--mauve);}
 .modal-sub{font-size:13px;color:var(--ink-soft);margin-bottom:24px;}
 .field{margin-bottom:18px;}
 .field-label{font-size:11px;font-weight:600;color:var(--ink-mid);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:7px;}
-textarea,input[type=text]{width:100%;font-family:'Inter',sans-serif;font-size:15px;color:var(--ink);border:1px solid var(--border);border-radius:10px;padding:12px 14px;background:var(--page);outline:none;resize:none;transition:border-color 0.15s,background 0.15s;}
-textarea:focus,input[type=text]:focus{border-color:var(--mauve-mid);background:var(--white);}
+textarea,input[type=text],input[type=password]{width:100%;font-family:'Inter',sans-serif;font-size:15px;color:var(--ink);border:1px solid var(--border);border-radius:10px;padding:12px 14px;background:var(--input-bg);outline:none;resize:none;transition:border-color 0.15s;}
+textarea:focus,input[type=text]:focus,input[type=password]:focus{border-color:var(--mauve-mid);}
 textarea{min-height:120px;}
 .char-hint{font-size:11px;color:var(--ink-soft);text-align:right;margin-top:5px;}
 .cat-pills{display:flex;flex-wrap:wrap;gap:7px;}
-.cat-pill{padding:7px 14px;border-radius:50px;border:1px solid var(--border);font-size:13px;cursor:pointer;background:var(--white);color:var(--ink-mid);font-family:'Inter',sans-serif;transition:all 0.15s;}
+.cat-pill{padding:7px 14px;border-radius:50px;border:1px solid var(--border);font-size:13px;cursor:pointer;background:var(--card-bg);color:var(--ink-mid);font-family:'Inter',sans-serif;transition:all 0.15s;}
 .cat-pill:hover{border-color:var(--mauve-mid);color:var(--mauve);}
 .cat-pill.active{background:var(--mauve);border-color:var(--mauve);color:#fff;}
 .modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:24px;}
-.btn-ghost{background:none;border:1px solid var(--border);padding:9px 20px;border-radius:50px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink-mid);}
+.btn-ghost{background:none;border:1px solid var(--border);padding:9px 20px;border-radius:50px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink-mid);transition:border-color 0.15s;}
+.btn-ghost:hover{border-color:var(--border-mid);}
 .btn-submit{background:var(--mauve);color:#fff;border:none;padding:10px 26px;border-radius:50px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity 0.15s;}
 .btn-submit:hover{opacity:0.88;}
 .btn-submit:disabled{opacity:0.5;cursor:not-allowed;}
+.btn-danger{background:var(--danger);color:#fff;border:none;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity 0.15s;}
+.btn-danger:hover{opacity:0.88;}
+
+/* FLAG MODAL */
+.flag-options{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.flag-option{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all 0.15s;background:var(--card-bg);}
+.flag-option:hover{border-color:var(--danger);background:var(--danger-light);}
+.flag-option.selected{border-color:var(--danger);background:var(--danger-light);}
+.flag-option-icon{font-size:18px;}
+.flag-option-text{font-size:14px;color:var(--ink);}
+
+/* ADMIN PANEL */
+.modal.admin-modal{max-width:760px;}
+.admin-tabs{display:flex;gap:4px;margin-bottom:20px;background:var(--page);border-radius:10px;padding:4px;}
+.admin-tab{flex:1;padding:8px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;font-family:'Inter',sans-serif;color:var(--ink-mid);transition:all 0.15s;}
+.admin-tab.active{background:var(--card-bg);color:var(--ink);box-shadow:0 1px 3px var(--shadow);}
+.admin-post{background:var(--page);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;}
+.admin-post-body{flex:1;}
+.admin-post-text{font-size:13px;color:var(--ink);line-height:1.5;margin-bottom:6px;}
+.admin-post-meta{font-size:11px;color:var(--ink-soft);}
+.admin-flag-count{display:inline-block;background:var(--danger-light);color:var(--danger);font-size:11px;font-weight:600;padding:2px 8px;border-radius:50px;margin-left:8px;}
+.admin-empty{text-align:center;padding:32px;color:var(--ink-soft);font-size:14px;}
+.admin-login{text-align:center;padding:20px 0;}
+.admin-login p{font-size:14px;color:var(--ink-mid);margin-bottom:16px;}
 
 /* STATE */
 .state-msg{text-align:center;padding:64px 20px;color:var(--ink-soft);}
@@ -154,48 +208,38 @@ textarea{min-height:120px;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* TOAST */
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(6px);background:var(--ink);color:#fff;padding:12px 22px;border-radius:12px;font-size:14px;z-index:400;opacity:0;pointer-events:none;transition:all 0.22s;white-space:nowrap;}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(6px);background:var(--ink);color:var(--page);padding:12px 22px;border-radius:12px;font-size:14px;z-index:500;opacity:0;pointer-events:none;transition:all 0.22s;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* ═══ READS PAGE ═══ */
+/* READS PAGE */
 .reads-hero{background:var(--slate-bg);padding:52px 28px 44px;text-align:center;}
 .reads-hero-label{display:inline-flex;align-items:center;gap:6px;background:rgba(124,92,191,0.25);color:var(--mauve-mid);font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;padding:5px 14px;border-radius:50px;margin-bottom:18px;}
 .reads-hero-title{font-family:'Fraunces',serif;font-size:clamp(26px,4vw,42px);font-weight:300;color:#fff;line-height:1.2;letter-spacing:-0.5px;max-width:600px;margin:0 auto 12px;}
 .reads-hero-title em{font-style:italic;color:var(--mauve-mid);}
 .reads-hero-sub{font-size:15px;color:#9896B8;max-width:480px;margin:0 auto;}
-
 .reads-layout{max-width:1160px;margin:0 auto;padding:36px 28px;}
-
-.reads-tabs{display:flex;gap:0;margin-bottom:32px;background:var(--white);border-radius:12px;border:1px solid var(--border);padding:5px;width:fit-content;}
+.reads-tabs{display:flex;gap:0;margin-bottom:32px;background:var(--card-bg);border-radius:12px;border:1px solid var(--border);padding:5px;width:fit-content;}
 .reads-tab{padding:8px 22px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;background:none;font-family:'Inter',sans-serif;color:var(--ink-mid);transition:all 0.15s;display:flex;align-items:center;gap:7px;}
 .reads-tab:hover{color:var(--ink);}
 .reads-tab.active{background:var(--mauve);color:#fff;}
-
-.reads-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;}
-
-.article-card{background:var(--white);border-radius:14px;border:1px solid var(--border);overflow:hidden;transition:border-color 0.15s,transform 0.15s;cursor:pointer;text-decoration:none;display:block;}
+.reads-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;}
+.article-card{background:var(--card-bg);border-radius:14px;border:1px solid var(--border);overflow:hidden;transition:border-color 0.15s,transform 0.15s;cursor:pointer;text-decoration:none;display:block;}
 .article-card:hover{border-color:var(--mauve-mid);transform:translateY(-2px);}
-.article-thumb{width:100%;height:160px;object-fit:cover;background:var(--mauve-light);display:flex;align-items:center;justify-content:center;font-size:40px;}
+.article-thumb{width:100%;height:150px;display:flex;align-items:center;justify-content:center;font-size:44px;background:var(--mauve-light);}
 .article-body{padding:18px 20px;}
 .article-source{font-size:11px;font-weight:600;color:var(--mauve);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;}
 .article-title{font-size:15px;font-weight:600;color:var(--ink);line-height:1.4;margin-bottom:8px;}
 .article-desc{font-size:13px;color:var(--ink-mid);line-height:1.55;margin-bottom:12px;}
-.article-meta{font-size:11px;color:var(--ink-soft);display:flex;align-items:center;gap:6px;}
+.article-meta{font-size:11px;color:var(--ink-soft);}
 .article-tag{display:inline-block;background:var(--mauve-light);color:var(--mauve);font-size:11px;font-weight:500;padding:2px 8px;border-radius:50px;margin-right:4px;}
-
-.reads-loading{text-align:center;padding:60px 20px;color:var(--ink-soft);}
-
-/* Featured article — full width */
-.article-card.featured{grid-column:1/-1;display:grid;grid-template-columns:280px 1fr;}
+.article-card.featured{grid-column:1/-1;display:grid;grid-template-columns:260px 1fr;}
 .article-card.featured .article-thumb{height:100%;min-height:180px;border-radius:0;}
 .article-card.featured .article-title{font-size:18px;}
-
-/* Research strip */
 .research-section{margin-top:44px;}
 .section-label{font-size:13px;font-weight:600;color:var(--ink);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 .section-label::after{content:'';flex:1;height:1px;background:var(--border);}
-.research-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
-.research-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 20px;cursor:pointer;text-decoration:none;display:block;transition:border-color 0.15s;}
+.research-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+.research-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:18px 20px;cursor:pointer;text-decoration:none;display:block;transition:border-color 0.15s;}
 .research-card:hover{border-color:var(--mauve-mid);}
 .research-label{font-size:11px;font-weight:600;color:var(--mauve);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;}
 .research-title{font-size:14px;font-weight:500;color:var(--ink);line-height:1.45;margin-bottom:6px;}
@@ -205,15 +249,17 @@ textarea{min-height:120px;}
 @media(max-width:820px){
   .layout{grid-template-columns:1fr;}
   .sidebar{position:static;}
-  .hero-title{font-size:28px;}
   .hero{padding:40px 20px 36px;}
-  .header-inner,.layout,.reads-layout{padding-left:16px;padding-right:16px;}
+  .hero-title{font-size:28px;}
+  .header-inner{padding:0 16px;}
+  .layout,.reads-layout{padding-left:16px;padding-right:16px;}
   .reads-hero{padding:36px 16px 32px;}
   .article-card.featured{grid-template-columns:1fr;}
-  .article-card.featured .article-thumb{height:160px;border-radius:0;}
+  .article-card.featured .article-thumb{height:150px;}
   .reads-tabs{width:100%;}
-  .reads-tab{flex:1;justify-content:center;padding:8px 10px;font-size:13px;}
-  .header-nav .nav-tab{font-size:13px;}
+  .reads-tab{flex:1;justify-content:center;padding:8px 8px;font-size:12px;}
+  .header-nav{gap:2px;}
+  .nav-tab{padding:6px 10px;font-size:13px;}
 }
 </style>
 </head>
@@ -221,21 +267,20 @@ textarea{min-height:120px;}
 
 <header class="site-header">
   <div class="header-inner">
-    <div class="wordmark">
-      <span class="wordmark-dot"></span>
-      FrustratedMind
-    </div>
+    <div class="wordmark"><span class="wordmark-dot"></span>FrustratedMind</div>
     <nav class="header-nav">
       <button class="nav-tab active" onclick="showPage('community',this)">Community</button>
       <button class="nav-tab" onclick="showPage('reads',this)">Reads &amp; Research</button>
-      <button class="btn-primary" onclick="openModal()">
-        <span style="font-size:16px;line-height:1">+</span> Share a thought
-      </button>
     </nav>
+    <div class="header-actions">
+      <button class="icon-btn" onclick="toggleDark()" id="dark-btn" title="Toggle dark mode">🌙</button>
+      <button class="admin-btn" onclick="openAdmin()">⚙ Admin</button>
+      <button class="btn-primary" onclick="openModal()"><span style="font-size:16px;line-height:1">+</span> Share a thought</button>
+    </div>
   </div>
 </header>
 
-<!-- ═══ PAGE 1: COMMUNITY ═══ -->
+<!-- PAGE 1: COMMUNITY -->
 <div id="page-community" class="page active">
   <section class="hero">
     <div class="hero-eyebrow"><span>🔒</span> Anonymous · No login · No tracking</div>
@@ -250,7 +295,6 @@ textarea{min-height:120px;}
       <span class="hero-pill">✨ Just life</span>
     </div>
   </section>
-
   <div class="layout">
     <main>
       <div class="search-wrap">
@@ -267,9 +311,7 @@ textarea{min-height:120px;}
         <button class="f-chip" onclick="setFilter('Life',this)">🌀 Life</button>
         <button class="f-chip" onclick="setFilter('Random',this)">✨ Random</button>
       </div>
-      <div id="posts-container">
-        <div class="state-msg"><div class="spinner"></div><div class="state-h">Loading posts…</div></div>
-      </div>
+      <div id="posts-container"><div class="state-msg"><div class="spinner"></div><div class="state-h">Loading posts…</div></div></div>
     </main>
     <aside class="sidebar">
       <div class="invite-card">
@@ -286,7 +328,7 @@ textarea{min-height:120px;}
         <div class="sidebar-head"><div class="sidebar-title">This space</div></div>
         <div class="rules-strip">
           <div class="rule-item"><span class="rule-icon">👤</span>No accounts, no profiles — ever.</div>
-          <div class="rule-item"><span class="rule-icon">🔇</span>No ads, no algorithms pushing content.</div>
+          <div class="rule-item"><span class="rule-icon">🔇</span>No ads, no algorithms.</div>
           <div class="rule-item"><span class="rule-icon">🤍</span>Empathy only. Unkindness gets removed.</div>
           <div class="rule-item"><span class="rule-icon">🌍</span>Open to anyone, anywhere.</div>
         </div>
@@ -295,26 +337,24 @@ textarea{min-height:120px;}
   </div>
 </div>
 
-<!-- ═══ PAGE 2: READS & RESEARCH ═══ -->
+<!-- PAGE 2: READS -->
 <div id="page-reads" class="page">
   <div class="reads-hero">
     <div class="reads-hero-label">📚 Curated for you</div>
     <h2 class="reads-hero-title">Understand what you're going through — <em>with research</em></h2>
-    <p class="reads-hero-sub">Articles, studies, and insights on mindset, work culture, and the job market — to help make sense of it all.</p>
+    <p class="reads-hero-sub">Articles, studies, and insights on mindset, work culture, and the job market.</p>
   </div>
-
   <div class="reads-layout">
     <div class="reads-tabs">
       <button class="reads-tab active" onclick="showTab('mindset',this)">🧠 Mindset</button>
       <button class="reads-tab" onclick="showTab('work',this)">💼 Work Crisis</button>
       <button class="reads-tab" onclick="showTab('jobs',this)">📈 Job Market</button>
     </div>
-
     <div id="reads-container"></div>
   </div>
 </div>
 
-<!-- MODAL -->
+<!-- COMPOSE MODAL -->
 <div class="modal-bg" id="modal" onclick="closeModalOutside(event)">
   <div class="modal">
     <div class="modal-title">Say what you feel, <em>honestly</em></div>
@@ -346,75 +386,118 @@ textarea{min-height:120px;}
   </div>
 </div>
 
+<!-- FLAG MODAL -->
+<div class="modal-bg" id="flag-modal" onclick="closeFlagModal(event)">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-title">Report this post</div>
+    <p class="modal-sub">Help keep FrustratedMind safe. Select a reason:</p>
+    <div class="flag-options">
+      <div class="flag-option" onclick="selectFlag(this,'Hate speech or harassment')"><span class="flag-option-icon">🚫</span><span class="flag-option-text">Hate speech or harassment</span></div>
+      <div class="flag-option" onclick="selectFlag(this,'Self-harm or crisis content')"><span class="flag-option-icon">⚠️</span><span class="flag-option-text">Self-harm or crisis content</span></div>
+      <div class="flag-option" onclick="selectFlag(this,'Spam or misleading')"><span class="flag-option-icon">📢</span><span class="flag-option-text">Spam or misleading</span></div>
+      <div class="flag-option" onclick="selectFlag(this,'Abusive or threatening')"><span class="flag-option-icon">😡</span><span class="flag-option-text">Abusive or threatening</span></div>
+      <div class="flag-option" onclick="selectFlag(this,'Other')"><span class="flag-option-icon">📝</span><span class="flag-option-text">Other</span></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeFlagModal()">Cancel</button>
+      <button class="btn-submit" id="flag-submit" onclick="submitFlag()" disabled style="background:var(--danger)">Submit report</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN MODAL -->
+<div class="modal-bg" id="admin-modal" onclick="closeAdminOutside(event)">
+  <div class="modal admin-modal">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div class="modal-title" style="margin:0">⚙️ Admin Panel</div>
+      <button class="btn-ghost" onclick="closeAdmin()" style="padding:6px 14px">Close</button>
+    </div>
+    <div id="admin-body"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 /* ── SUPABASE ── */
 const SUPABASE_URL='https://heoymrtsompdkxpznuab.supabase.co';
-const SUPABASE_ANON_KEY='eyJhbGci...';
-const ADMIN_PASSWORD='December@9791371001';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhlb3ltcnRzb21wZGt4cHpudWFiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NTIyMzAsImV4cCI6MjA5ODIyODIzMH0.BmJfEXyjIji9lGAgT3oZhR_DKBB7kbo0GqoI_CYXe5M';
+const ADMIN_PASSWORD='FrustratedMind2024!'; /* ← change this to your own password */
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 
 /* ── CONSTANTS ── */
-const CATS = {
-  'Work':{bg:'#FFF3E0',tx:'#8C5500',emoji:'💼'},
-  'Relationship':{bg:'#FAEAED',tx:'#8C2840',emoji:'💔'},
-  'Family':{bg:'#E5F5EE',tx:'#1E5E40',emoji:'🏠'},
-  'Mental Health':{bg:'#EDE8FA',tx:'#4A2D9A',emoji:'🧠'},
-  'Life':{bg:'#E7F0FB',tx:'#1A4A8A',emoji:'🌀'},
-  'Random':{bg:'#F3EEF8',tx:'#5C3D88',emoji:'✨'},
-};
-const AV_COLORS=['#7C5CBF','#C2516A','#4A9B72','#3A7DC9','#C47B1A','#9B5EA0','#5C8A9B'];
+const CATS={'Work':{bg:'#FFF3E0',tx:'#8C5500',emoji:'💼'},'Relationship':{bg:'#FAEAED',tx:'#8C2840',emoji:'💔'},'Family':{bg:'#E5F5EE',tx:'#1E5E40',emoji:'🏠'},'Mental Health':{bg:'#EDE8FA',tx:'#4A2D9A',emoji:'🧠'},'Life':{bg:'#E7F0FB',tx:'#1A4A8A',emoji:'🌀'},'Random':{bg:'#F3EEF8',tx:'#5C3D88',emoji:'✨'}};
+const AV=['#7C5CBF','#C2516A','#4A9B72','#3A7DC9','#C47B1A','#9B5EA0','#5C8A9B'];
 const ANON=['Stargazer','Quiet Storm','Midnight','Ember','Wanderer','Echo','Solstice','Dusk','Rainfall','Cipher'];
 
 /* ── STATE ── */
-let allPosts=[],openComments={},userReactions={},activeFilter='All',selectedCat='',submitting=false;
+let allPosts=[],openComments={},userReactions={},flaggedPosts={},activeFilter='All',selectedCat='',submitting=false,adminAuth=false,flagTargetId=null,selectedFlagReason=null,activeAdminTab='all',activeTab='mindset';
 
 /* ── HELPERS ── */
 function uid(){return Math.random().toString(36).slice(2,9);}
 function rnd(arr){return arr[Math.floor(Math.random()*arr.length)];}
-function avColor(s){return AV_COLORS[((s||'A').charCodeAt(0))%AV_COLORS.length];}
+function avColor(s){return AV[((s||'A').charCodeAt(0))%AV.length];}
 function initials(n){return(n||'A').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function relTime(ts){
-  const d=(Date.now()-new Date(ts).getTime())/1000;
-  if(d<60)return'just now';if(d<3600)return Math.floor(d/60)+'m ago';
-  if(d<86400)return Math.floor(d/3600)+'h ago';return Math.floor(d/86400)+'d ago';
-}
+function relTime(ts){const d=(Date.now()-new Date(ts).getTime())/1000;if(d<60)return'just now';if(d<3600)return Math.floor(d/60)+'m ago';if(d<86400)return Math.floor(d/3600)+'h ago';return Math.floor(d/86400)+'d ago';}
 function parseTags(t){const r=[],re=/#(\w+)/g;let m;while((m=re.exec(t||''))!==null)r.push(m[1].toLowerCase());return[...new Set(r)];}
 function fmtBody(t){return esc(t).replace(/#(\w+)/g,'<span class="hashtag" onclick="filterByTag(\'#$1\')">#$1</span>');}
-function getSessionId(){let s=sessionStorage.getItem('fm_sid');if(!s){s=uid()+uid();sessionStorage.setItem('fm_sid',s);}return s;}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+function getSid(){let s=sessionStorage.getItem('fm_sid');if(!s){s=uid()+uid();sessionStorage.setItem('fm_sid',s);}return s;}
+function showToast(msg,dur=2800){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
+
+/* ── DARK MODE ── */
+function toggleDark(){
+  const html=document.documentElement;
+  const isDark=html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme',isDark?'light':'dark');
+  document.getElementById('dark-btn').textContent=isDark?'🌙':'☀️';
+  localStorage.setItem('fm_theme',isDark?'light':'dark');
+}
+(function initTheme(){
+  const saved=localStorage.getItem('fm_theme');
+  if(saved==='dark'){document.documentElement.setAttribute('data-theme','dark');document.getElementById('dark-btn').textContent='☀️';}
+})();
 
 /* ── PAGE NAV ── */
-function showPage(page, btn){
+function showPage(page,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
-  if(btn) btn.classList.add('active');
-  if(page==='reads') renderReads();
+  if(btn)btn.classList.add('active');
+  if(page==='reads')renderReads();
 }
 
-/* ── SUPABASE DATA ── */
+/* ── SUPABASE ── */
 async function loadPosts(){
   showLoading();
   try{
-    const{data,error}=await db.from('posts')
-      .select('id,text,name,category,created_at,reactions(id,emoji,session_id),comments(id,text,name,created_at)')
-      .order('created_at',{ascending:false}).limit(100);
+    const{data,error}=await db.from('posts').select('id,text,name,category,created_at,reactions(id,emoji,session_id),comments(id,text,name,created_at)').order('created_at',{ascending:false}).limit(100);
     if(error)throw error;
     allPosts=data||[];
-    const sid=getSessionId();
+    const sid=getSid();
     allPosts.forEach(p=>(p.reactions||[]).forEach(r=>{if(r.session_id===sid)userReactions[p.id+r.emoji]=true;}));
+    /* load report counts — safe, won't crash if table missing */
+    try{
+      const{data:rpts}=await db.from('reports').select('post_id');
+      if(rpts)rpts.forEach(r=>{flaggedPosts[r.post_id]=(flaggedPosts[r.post_id]||0)+1;});
+    }catch(e){console.warn('Reports table not ready yet:',e);}
     renderAll();
   }catch(err){console.error(err);showError();}
 }
 async function submitPostToDB(text,name,category){
-  const{data,error}=await db.from('posts').insert([{text,name,category}])
-    .select('id,text,name,category,created_at,reactions(id,emoji,session_id),comments(id,text,name,created_at)').single();
+  const{data,error}=await db.from('posts').insert([{text,name,category}]).select('id,text,name,category,created_at,reactions(id,emoji,session_id),comments(id,text,name,created_at)').single();
   if(error)throw error;return data;
 }
+async function deletePostDB(id){
+  const{error}=await db.from('posts').delete().eq('id',id);
+  if(error)throw error;
+}
+async function submitReportDB(postId,reason){
+  const{error}=await db.from('reports').insert([{post_id:postId,reason,session_id:getSid()}]);
+  if(error)throw error;
+}
 async function toggleReactionDB(postId,emoji){
-  const key=postId+emoji,sid=getSessionId();
+  const key=postId+emoji,sid=getSid();
   if(userReactions[key]){
     await db.from('reactions').delete().eq('post_id',postId).eq('emoji',emoji).eq('session_id',sid);
     delete userReactions[key];
@@ -435,7 +518,7 @@ function subscribeRealtime(){
   db.channel('public:posts').on('postgres_changes',{event:'INSERT',schema:'public',table:'posts'},()=>loadPosts()).subscribe();
 }
 
-/* ── RENDER COMMUNITY ── */
+/* ── RENDER ── */
 function showLoading(){document.getElementById('posts-container').innerHTML='<div class="state-msg"><div class="spinner"></div><div class="state-h">Loading posts…</div></div>';}
 function showError(){document.getElementById('posts-container').innerHTML='<div class="state-msg"><div class="state-icon">⚠️</div><div class="state-h">Couldn\'t load posts</div><p class="state-p">Check your connection and refresh.</p></div>';}
 function getFiltered(){
@@ -455,6 +538,7 @@ function renderPosts(){
     const rxn={'❤️':0,'🤝':0,'🤗':0,'👎':0};
     (post.reactions||[]).forEach(r=>{if(rxn[r.emoji]!==undefined)rxn[r.emoji]++;});
     const cmts=post.comments||[],isOpen=openComments[post.id];
+    const isFlagged=flaggedPosts[post.id]>0;
     const cmtsHtml=isOpen?`<div class="comments-wrap open">${cmts.map(cm=>`
       <div class="comment">
         <div class="cmt-avatar" style="background:${avColor(cm.name)}">${initials(cm.name)}</div>
@@ -464,7 +548,7 @@ function renderPosts(){
         <input type="text" id="ci-${post.id}" placeholder="Add a kind word…" maxlength="200" onkeydown="if(event.key==='Enter')addComment('${post.id}')">
         <button class="btn-send" onclick="addComment('${post.id}')">↑</button>
       </div></div>`:'<div class="comments-wrap"></div>';
-    return`<div class="post-card">
+    return`<div class="post-card" id="pc-${post.id}">
       <div class="post-head">
         <div class="avatar" style="background:${av}">${initials(post.name)}</div>
         <div><div class="post-author">${esc(post.name||'Anonymous')}</div><div class="post-time">${relTime(post.created_at)}</div></div>
@@ -473,7 +557,9 @@ function renderPosts(){
       <div class="post-body">${fmtBody(post.text)}</div>
       <div class="post-footer">
         ${Object.entries(rxn).map(([e,n])=>`<button class="rxn-btn ${userReactions[post.id+e]?'reacted':''}" onclick="handleReaction('${post.id}','${e}')">${e} ${n}</button>`).join('')}
-        <button class="cmt-toggle" onclick="toggleComments('${post.id}')">💬 ${cmts.length?cmts.length+' ':''}${isOpen?'hide':'reply'}</button>
+        <button class="post-action-btn share-btn" onclick="sharePost('${post.id}')">🔗 Share</button>
+        <button class="post-action-btn flag-btn ${isFlagged?'flagged':''}" onclick="openFlagModal('${post.id}')">${isFlagged?'🚩 Reported':'⚑ Report'}</button>
+        <button class="post-action-btn comment-toggle" onclick="toggleComments('${post.id}')">💬 ${cmts.length?cmts.length+' ':''}${isOpen?'hide':'reply'}</button>
       </div>${cmtsHtml}</div>`;
   }).join('');
 }
@@ -486,7 +572,7 @@ function renderTrending(){
   el.innerHTML=items.map(([tag],i)=>`<div class="trending-item" onclick="filterByTag('#${tag}')"><span class="t-rank">${i+1}</span><span class="t-tag">#${tag}</span><span class="t-arrow">›</span></div>`).join('');
 }
 
-/* ── USER ACTIONS ── */
+/* ── COMPOSE ── */
 function openModal(){document.getElementById('modal').classList.add('open');setTimeout(()=>document.getElementById('post-text').focus(),220);}
 function closeModal(){
   document.getElementById('modal').classList.remove('open');
@@ -497,10 +583,7 @@ function closeModal(){
 function closeModalOutside(e){if(e.target===document.getElementById('modal'))closeModal();}
 function updateChar(){document.getElementById('char-num').textContent=document.getElementById('post-text').value.length;}
 function selectCat(el,cat){document.querySelectorAll('.cat-pill').forEach(c=>c.classList.remove('active'));el.classList.add('active');selectedCat=cat;}
-function setFilter(cat,el){
-  activeFilter=cat;document.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');
-  document.getElementById('search-input').value='';renderPosts();
-}
+function setFilter(cat,el){activeFilter=cat;document.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');document.getElementById('search-input').value='';renderPosts();}
 function filterByTag(tag){document.getElementById('search-input').value=tag;handleSearch();}
 function handleSearch(){renderPosts();}
 function toggleComments(pid){openComments[pid]=!openComments[pid];renderPosts();}
@@ -513,8 +596,8 @@ async function submitPost(){
   const category=selectedCat||'Random';
   submitting=true;const btn=document.getElementById('submit-btn');btn.textContent='Posting…';btn.disabled=true;
   try{
-    const newPost=await submitPostToDB(text,name,category);
-    allPosts.unshift(newPost);closeModal();renderAll();showToast('Your feelings are heard 🤍');
+    const p=await submitPostToDB(text,name,category);
+    allPosts.unshift(p);closeModal();renderAll();showToast('Your feelings are heard 🤍');
   }catch(err){console.error(err);showToast('Something went wrong — try again');}
   finally{submitting=false;btn.textContent='Post it →';btn.disabled=false;}
 }
@@ -526,34 +609,130 @@ async function addComment(postId){
   const text=inp.value.trim();if(!text)return;
   const name=rnd(ANON);inp.value='';
   try{
-    const newCmt=await addCommentDB(postId,text,name);
+    const c=await addCommentDB(postId,text,name);
     const post=allPosts.find(p=>p.id===postId);
-    if(post)post.comments=[...(post.comments||[]),newCmt];
+    if(post)post.comments=[...(post.comments||[]),c];
     openComments[postId]=true;renderPosts();
     setTimeout(()=>{const el=document.getElementById('ci-'+postId);if(el)el.focus();},30);
-  }catch(err){console.error(err);showToast('Could not post comment — try again');}
+  }catch(err){console.error(err);showToast('Could not post comment');}
 }
 
-/* ══════════════════════════════════════════
-   READS & RESEARCH DATA
-══════════════════════════════════════════ */
-const READS = {
-  mindset: {
-    featured: {
-      emoji:'🧠',
-      source:'Harvard Business Review',
-      title:'The Science of Building Resilience When Work Feels Impossible',
-      desc:'Researchers found that people who reframe adversity as a challenge — rather than a threat — show measurably better outcomes in wellbeing and performance over time.',
-      tag:'Resilience',
-      year:'2024',
-      url:'https://hbr.org/2023/01/how-to-build-resilience-at-work'
-    },
+/* ── SHARE ── */
+function sharePost(postId){
+  const post=allPosts.find(p=>p.id===postId);
+  if(!post)return;
+  const url=`https://frustratedmind.com/?post=${postId}`;
+  const text=`"${post.text.slice(0,100)}${post.text.length>100?'…':''}" — FrustratedMind`;
+  if(navigator.share){
+    navigator.share({title:'FrustratedMind',text,url}).catch(()=>{});
+  }else{
+    navigator.clipboard.writeText(url).then(()=>showToast('Link copied to clipboard 🔗')).catch(()=>showToast('Copy this link: '+url));
+  }
+}
+
+/* ── FLAG / REPORT ── */
+function openFlagModal(postId){
+  flagTargetId=postId;selectedFlagReason=null;
+  document.querySelectorAll('.flag-option').forEach(o=>o.classList.remove('selected'));
+  document.getElementById('flag-submit').disabled=true;
+  document.getElementById('flag-modal').classList.add('open');
+}
+function closeFlagModal(e){
+  if(!e||e.target===document.getElementById('flag-modal'))document.getElementById('flag-modal').classList.remove('open');
+}
+function selectFlag(el,reason){
+  document.querySelectorAll('.flag-option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');selectedFlagReason=reason;
+  document.getElementById('flag-submit').disabled=false;
+}
+async function submitFlag(){
+  if(!flagTargetId||!selectedFlagReason)return;
+  try{
+    await submitReportDB(flagTargetId,selectedFlagReason);
+    flaggedPosts[flagTargetId]=(flaggedPosts[flagTargetId]||0)+1;
+    document.getElementById('flag-modal').classList.remove('open');
+    renderPosts();showToast('Report submitted. Thank you 🤍');
+  }catch(err){console.error(err);showToast('Could not submit report — try again');}
+}
+
+/* ── ADMIN ── */
+function openAdmin(){document.getElementById('admin-modal').classList.add('open');renderAdminBody();}
+function closeAdmin(){document.getElementById('admin-modal').classList.remove('open');}
+function closeAdminOutside(e){if(e.target===document.getElementById('admin-modal'))closeAdmin();}
+
+function renderAdminBody(){
+  const body=document.getElementById('admin-body');
+  if(!adminAuth){
+    body.innerHTML=`
+      <div class="admin-login">
+        <p>Enter the admin password to continue.</p>
+        <div class="field"><input type="password" id="admin-pw" placeholder="Password" onkeydown="if(event.key==='Enter')checkAdminPw()"></div>
+        <button class="btn-submit" onclick="checkAdminPw()">Login</button>
+        <div id="admin-pw-err" style="color:var(--danger);font-size:13px;margin-top:10px;display:none">Incorrect password</div>
+      </div>`;
+    setTimeout(()=>document.getElementById('admin-pw').focus(),100);
+    return;
+  }
+  renderAdminPanel();
+}
+function checkAdminPw(){
+  const pw=document.getElementById('admin-pw').value;
+  if(pw===ADMIN_PASSWORD){adminAuth=true;renderAdminPanel();}
+  else{document.getElementById('admin-pw-err').style.display='block';}
+}
+async function renderAdminPanel(){
+  const body=document.getElementById('admin-body');
+  body.innerHTML=`
+    <div class="admin-tabs">
+      <button class="admin-tab ${activeAdminTab==='all'?'active':''}" onclick="switchAdminTab('all',this)">All Posts (${allPosts.length})</button>
+      <button class="admin-tab ${activeAdminTab==='flagged'?'active':''}" onclick="switchAdminTab('flagged',this)">🚩 Flagged</button>
+    </div>
+    <div id="admin-list"></div>`;
+  renderAdminList();
+}
+function switchAdminTab(tab,btn){
+  activeAdminTab=tab;
+  document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderAdminList();
+}
+function renderAdminList(){
+  const el=document.getElementById('admin-list');
+  let list=activeAdminTab==='flagged'?allPosts.filter(p=>flaggedPosts[p.id]>0):allPosts;
+  if(!list.length){el.innerHTML='<div class="admin-empty">Nothing here yet.</div>';return;}
+  el.innerHTML=list.map(p=>`
+    <div class="admin-post" id="ap-${p.id}">
+      <div class="admin-post-body">
+        <div class="admin-post-text">${esc(p.text)}</div>
+        <div class="admin-post-meta">
+          ${esc(p.name||'Anonymous')} · ${p.category} · ${relTime(p.created_at)}
+          ${flaggedPosts[p.id]?`<span class="admin-flag-count">🚩 ${flaggedPosts[p.id]} report${flaggedPosts[p.id]>1?'s':''}</span>`:''}
+        </div>
+      </div>
+      <button class="btn-danger" onclick="adminDelete('${p.id}')">Delete</button>
+    </div>`).join('');
+}
+async function adminDelete(postId){
+  if(!confirm('Delete this post permanently?'))return;
+  try{
+    await deletePostDB(postId);
+    allPosts=allPosts.filter(p=>p.id!==postId);
+    delete flaggedPosts[postId];
+    renderAll();renderAdminList();
+    showToast('Post deleted');
+  }catch(err){console.error(err);showToast('Delete failed — check Supabase delete policy');}
+}
+
+/* ── READS DATA ── */
+const READS={
+  mindset:{
+    featured:{emoji:'🧠',source:'Harvard Business Review',title:'The Science of Building Resilience When Work Feels Impossible',desc:'Researchers found that people who reframe adversity as a challenge — rather than a threat — show measurably better outcomes in wellbeing and performance over time.',tag:'Resilience',year:'2024',url:'https://hbr.org/2023/01/how-to-build-resilience-at-work'},
     articles:[
       {emoji:'💭',source:'Psychology Today',title:'Why You Feel Empty Even When Life Looks Fine',desc:'The hidden emotional labor of keeping up appearances and what to do when your inner world doesn\'t match your outer one.',tag:'Mental Health',year:'2024',url:'https://www.psychologytoday.com/us/blog/emotional-fitness'},
-      {emoji:'🔄',source:'MIT Sloan Review',title:'How Chronic Stress Rewires Your Brain — and How to Reverse It',desc:'New neuroscience shows that sustained workplace stress physically alters neural pathways. The good news: recovery is possible and measurable.',tag:'Neuroscience',year:'2024',url:'https://sloanreview.mit.edu/article/the-stress-performance-paradox/'},
+      {emoji:'🔄',source:'MIT Sloan Review',title:'How Chronic Stress Rewires Your Brain — and How to Reverse It',desc:'New neuroscience shows sustained workplace stress physically alters neural pathways. The good news: recovery is measurable.',tag:'Neuroscience',year:'2024',url:'https://sloanreview.mit.edu/article/the-stress-performance-paradox/'},
       {emoji:'🌱',source:'Greater Good Science Center',title:'The Power of Self-Compassion Over Self-Criticism',desc:'Studies from UC Berkeley show self-compassion — not self-discipline — is the strongest predictor of bouncing back after failure.',tag:'Wellbeing',year:'2023',url:'https://greatergood.berkeley.edu/topic/self-compassion'},
-      {emoji:'😶',source:'The Atlantic',title:'The Quiet Crisis of Emotional Numbness at Work',desc:'A growing number of people describe feeling nothing — not burned out, not sad, just flat. What experts say is happening and why it matters.',tag:'Burnout',year:'2024',url:'https://www.theatlantic.com/health/'},
-      {emoji:'🧘',source:'American Psychological Association',title:'Mindfulness at Work: What the Research Actually Shows',desc:'Separating evidence-based mindfulness interventions from corporate wellness theatre — and what actually moves the needle on stress.',tag:'Research',year:'2023',url:'https://www.apa.org/topics/mindfulness'},
+      {emoji:'😶',source:'The Atlantic',title:'The Quiet Crisis of Emotional Numbness at Work',desc:'A growing number of people describe feeling nothing — not burned out, not sad, just flat. What experts say is happening.',tag:'Burnout',year:'2024',url:'https://www.theatlantic.com/health/'},
+      {emoji:'🧘',source:'American Psychological Association',title:'Mindfulness at Work: What the Research Actually Shows',desc:'Separating evidence-based mindfulness from corporate wellness theatre — and what actually moves the needle on stress.',tag:'Research',year:'2023',url:'https://www.apa.org/topics/mindfulness'},
     ],
     research:[
       {label:'Study',title:'Psychological Safety and Team Performance',source:'Google Project Aristotle',year:'2023',url:'https://rework.withgoogle.com/print/guides/5721312655835136/'},
@@ -562,79 +741,54 @@ const READS = {
       {label:'Research',title:'Why Humans Are Wired to Ruminate — and How to Stop',source:'Yale University',year:'2024',url:'https://news.yale.edu/'},
     ]
   },
-  work: {
-    featured: {
-      emoji:'🔥',
-      source:'The Guardian',
-      title:'The Burnout Generation: Why Work Has Never Felt This Exhausting',
-      desc:'Across industries and age groups, a generation of workers is hitting a wall. This deep investigation explores the systemic causes — and what recovery actually looks like.',
-      tag:'Burnout',
-      year:'2024',
-      url:'https://www.theguardian.com/society/burnout'
-    },
+  work:{
+    featured:{emoji:'🔥',source:'The Guardian',title:'The Burnout Generation: Why Work Has Never Felt This Exhausting',desc:'Across industries and age groups, a generation of workers is hitting a wall. This deep investigation explores the systemic causes — and what recovery actually looks like.',tag:'Burnout',year:'2024',url:'https://www.theguardian.com/society/burnout'},
     articles:[
       {emoji:'🏢',source:'BBC Worklife',title:'The Rise of "Quiet Quitting" — and What It Really Means',desc:'Millions of workers are doing the bare minimum. Experts say it\'s not laziness — it\'s a rational response to broken workplace contracts.',tag:'Culture',year:'2024',url:'https://www.bbc.com/worklife/'},
-      {emoji:'📉',source:'Wall Street Journal',title:'Return to Office Mandates Are Backfiring. Here\'s the Data.',desc:'New research shows forced RTO policies correlate with increased attrition among high performers — and lower engagement across the board.',tag:'Remote Work',year:'2024',url:'https://www.wsj.com/business/'},
-      {emoji:'😤',source:'Harvard Business Review',title:'Why Toxic Managers Survive — and What HR Gets Wrong',desc:'A landmark study of 60,000 managers found toxic behavior is rarely punished when productivity numbers look good. The cost to teams is invisible — until it isn\'t.',tag:'Management',year:'2023',url:'https://hbr.org/topic/leadership'},
-      {emoji:'⏰',source:'MIT Technology Review',title:'AI Is Changing What Work Feels Like — Not Just Who Does It',desc:'Beyond job displacement, researchers are tracking how AI-assisted work is increasing cognitive load and stress for the workers who remain.',tag:'Future of Work',year:'2024',url:'https://www.technologyreview.com/topic/work/'},
-      {emoji:'💸',source:'Fortune',title:'The Real Cost of a Bad Boss: $750 Billion Per Year',desc:'New economic analysis quantifies what bad management costs the US economy. The toll on individuals is much harder to put a number on.',tag:'Leadership',year:'2024',url:'https://fortune.com/section/leadership/'},
+      {emoji:'📉',source:'Wall Street Journal',title:'Return to Office Mandates Are Backfiring. Here\'s the Data.',desc:'New research shows forced RTO policies correlate with increased attrition among high performers and lower engagement across the board.',tag:'Remote Work',year:'2024',url:'https://www.wsj.com/business/'},
+      {emoji:'😤',source:'Harvard Business Review',title:'Why Toxic Managers Survive — and What HR Gets Wrong',desc:'A landmark study of 60,000 managers found toxic behavior is rarely punished when productivity numbers look good.',tag:'Management',year:'2023',url:'https://hbr.org/topic/leadership'},
+      {emoji:'⏰',source:'MIT Technology Review',title:'AI Is Changing What Work Feels Like — Not Just Who Does It',desc:'Beyond job displacement, researchers track how AI-assisted work is increasing cognitive load for workers who remain.',tag:'Future of Work',year:'2024',url:'https://www.technologyreview.com/topic/work/'},
+      {emoji:'💸',source:'Fortune',title:'The Real Cost of a Bad Boss: $750 Billion Per Year',desc:'New economic analysis quantifies what bad management costs the economy. The toll on individuals is much harder to measure.',tag:'Leadership',year:'2024',url:'https://fortune.com/section/leadership/'},
     ],
     research:[
       {label:'Report',title:'State of the Global Workplace 2024',source:'Gallup',year:'2024',url:'https://www.gallup.com/workplace/349484/state-of-the-global-workplace.aspx'},
-      {label:'Study',title:'Job Demands-Resources Model: Updated Evidence',source:'Journal of Applied Psychology',year:'2023',url:'https://psycnet.apa.org/PsycARTICLES/journal/apl/'},
       {label:'Survey',title:'77% of Workers Have Experienced Burnout at Current Job',source:'Deloitte Insights',year:'2024',url:'https://www2.deloitte.com/us/en/insights/topics/talent/workplace-burnout-survey.html'},
-      {label:'Research',title:'Psychological Contract Breach and Employee Disengagement',source:'Journal of Organizational Behavior',year:'2023',url:'https://onlinelibrary.wiley.com/journal/10991379'},
+      {label:'Study',title:'Psychological Contract Breach and Employee Disengagement',source:'Journal of Organizational Behavior',year:'2023',url:'https://onlinelibrary.wiley.com/journal/10991379'},
+      {label:'Research',title:'Job Demands-Resources Model: Updated Evidence',source:'Journal of Applied Psychology',year:'2023',url:'https://psycnet.apa.org/PsycARTICLES/journal/apl/'},
     ]
   },
-  jobs: {
-    featured: {
-      emoji:'📊',
-      source:'Financial Times',
-      title:'The Great Recalibration: What the Job Market Really Looks Like in 2024',
-      desc:'After years of turbulence — the Great Resignation, mass layoffs, AI disruption — the job market has settled into something new and harder to read. A data-driven analysis.',
-      tag:'Job Market',
-      year:'2024',
-      url:'https://www.ft.com/work-careers'
-    },
+  jobs:{
+    featured:{emoji:'📊',source:'Financial Times',title:'The Great Recalibration: What the Job Market Really Looks Like in 2025',desc:'After years of turbulence — the Great Resignation, mass layoffs, AI disruption — the job market has settled into something new and harder to read. A data-driven analysis.',tag:'Job Market',year:'2025',url:'https://www.ft.com/work-careers'},
     articles:[
       {emoji:'🤖',source:'McKinsey Global Institute',title:'Which Jobs AI Will Replace — and Which It Will Create',desc:'New modelling suggests 30% of current tasks will be automatable by 2030. But the picture is more nuanced than headlines suggest.',tag:'AI & Jobs',year:'2024',url:'https://www.mckinsey.com/featured-insights/future-of-work'},
-      {emoji:'📉',source:'Bloomberg',title:'Tech Layoffs Haven\'t Stopped. Here\'s Where We Are Now.',desc:'A running tracker of major layoffs, the sectors hardest hit, and what the data says about hiring appetite heading into the next cycle.',tag:'Layoffs',year:'2024',url:'https://www.bloomberg.com/technology'},
+      {emoji:'📉',source:'Bloomberg',title:'Tech Layoffs Haven\'t Stopped. Here\'s Where We Are Now.',desc:'A running tracker of major layoffs, the sectors hardest hit, and what the data says about hiring appetite heading into the next cycle.',tag:'Layoffs',year:'2025',url:'https://www.bloomberg.com/technology'},
       {emoji:'🎓',source:'Pew Research Center',title:'Is a College Degree Still Worth It? What the Data Says',desc:'New longitudinal data shows the college premium is shrinking for some fields but growing for others. The picture has never been more complex.',tag:'Education',year:'2024',url:'https://www.pewresearch.org/topics/economy-work/'},
-      {emoji:'🌍',source:'World Economic Forum',title:'The Jobs of the Future: Skills That Will Matter in 2030',desc:'The WEF\'s latest report identifies the 10 fastest-growing roles globally — and the 10 that will see the steepest decline.',tag:'Future Skills',year:'2024',url:'https://www.weforum.org/reports/the-future-of-jobs-report-2023/'},
-      {emoji:'💼',source:'LinkedIn Economic Graph',title:'Hiring Slowed Everywhere. Some Industries Are Different.',desc:'LinkedIn\'s workforce data reveals which sectors are quietly hiring while others contract — and what skills are crossing industry lines.',tag:'Hiring',year:'2024',url:'https://economicgraph.linkedin.com/'},
+      {emoji:'🌍',source:'World Economic Forum',title:'The Jobs of the Future: Skills That Will Matter in 2030',desc:'The WEF\'s latest report identifies the 10 fastest-growing roles globally — and the 10 that will see the steepest decline.',tag:'Future Skills',year:'2025',url:'https://www.weforum.org/reports/the-future-of-jobs-report-2023/'},
+      {emoji:'💼',source:'LinkedIn Economic Graph',title:'Hiring Slowed Everywhere. Some Industries Are Different.',desc:'LinkedIn\'s workforce data reveals which sectors are quietly hiring while others contract — and what skills cross industry lines.',tag:'Hiring',year:'2025',url:'https://economicgraph.linkedin.com/'},
     ],
     research:[
-      {label:'Report',title:'Future of Jobs Report 2024',source:'World Economic Forum',year:'2024',url:'https://www.weforum.org/reports/the-future-of-jobs-report-2023/'},
-      {label:'Data',title:'US Jobs Openings and Labor Turnover Survey (JOLTS)',source:'Bureau of Labor Statistics',year:'2024',url:'https://www.bls.gov/jlt/'},
+      {label:'Report',title:'Future of Jobs Report 2025',source:'World Economic Forum',year:'2025',url:'https://www.weforum.org/reports/the-future-of-jobs-report-2023/'},
+      {label:'Data',title:'US Jobs Openings and Labor Turnover (JOLTS)',source:'Bureau of Labor Statistics',year:'2025',url:'https://www.bls.gov/jlt/'},
       {label:'Study',title:'Skills-Based Hiring: Evidence From Early Adopters',source:'Harvard Business School',year:'2024',url:'https://www.hbs.edu/managing-the-future-of-work/'},
-      {label:'Report',title:'Global Employment Trends for Youth 2024',source:'International Labour Organization',year:'2024',url:'https://www.ilo.org/global/research/global-reports/'},
+      {label:'Report',title:'Global Employment Trends for Youth 2025',source:'International Labour Organization',year:'2025',url:'https://www.ilo.org/global/research/global-reports/'},
     ]
   }
 };
 
-let activeTab = 'mindset';
-let readsRendered = false;
-
-function showTab(tab, btn){
-  activeTab = tab;
+function showTab(tab,btn){
+  activeTab=tab;
   document.querySelectorAll('.reads-tab').forEach(t=>t.classList.remove('active'));
-  if(btn) btn.classList.add('active');
+  if(btn)btn.classList.add('active');
   renderReads();
 }
-
 function renderReads(){
-  const c = document.getElementById('reads-container');
-  const data = READS[activeTab];
-  if(!data){ return; }
-
-  const f = data.featured;
-  const articles = data.articles;
-  const research = data.research;
-
-  c.innerHTML = `
+  const c=document.getElementById('reads-container');
+  const d=READS[activeTab];if(!d)return;
+  const f=d.featured;
+  c.innerHTML=`
     <div class="reads-grid">
       <a class="article-card featured" href="${f.url}" target="_blank" rel="noopener">
-        <div class="article-thumb" style="font-size:52px;display:flex;align-items:center;justify-content:center;background:var(--mauve-light)">${f.emoji}</div>
+        <div class="article-thumb" style="font-size:52px">${f.emoji}</div>
         <div class="article-body">
           <div class="article-source">${f.source} · <span class="article-tag">${f.tag}</span></div>
           <div class="article-title">${f.title}</div>
@@ -642,9 +796,9 @@ function renderReads(){
           <div class="article-meta">📅 ${f.year} · Featured read</div>
         </div>
       </a>
-      ${articles.map(a=>`
+      ${d.articles.map(a=>`
         <a class="article-card" href="${a.url}" target="_blank" rel="noopener">
-          <div class="article-thumb" style="font-size:44px;display:flex;align-items:center;justify-content:center;background:var(--mauve-light)">${a.emoji}</div>
+          <div class="article-thumb" style="font-size:44px">${a.emoji}</div>
           <div class="article-body">
             <div class="article-source">${a.source} · <span class="article-tag">${a.tag}</span></div>
             <div class="article-title">${a.title}</div>
@@ -653,11 +807,10 @@ function renderReads(){
           </div>
         </a>`).join('')}
     </div>
-
     <div class="research-section">
       <div class="section-label">📄 Research & Reports</div>
       <div class="research-grid">
-        ${research.map(r=>`
+        ${d.research.map(r=>`
           <a class="research-card" href="${r.url}" target="_blank" rel="noopener">
             <div class="research-label">${r.label}</div>
             <div class="research-title">${r.title}</div>
