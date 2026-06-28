@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unfiltered — A space to exhale</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --ink:       #1C1A2E;
+  --ink-mid:   #5C5977;
+  --ink-soft:  #9693A8;
+  --page:      #F5F3FA;
+  --white:     #FFFFFF;
+  --border:    #E4E0F0;
+  --border-mid:#CCC8DE;
+  --mauve:     #7C5CBF;
+  --mauve-light:#EDE8FA;
+  --mauve-mid: #B8A8E8;
+  --rose:      #C2516A;
+  --rose-light:#FAEAED;
+  --sage:      #4A9B72;
+  --sage-light:#E5F5EE;
+  --amber:     #C47B1A;
+  --amber-light:#FEF3E2;
+  --sky:       #3A7DC9;
+  --sky-light: #E7F0FB;
+  --slate-bg:  #2A273F;
+  --r:         16px;
+}
+
+body {
+  font-family:'Inter',sans-serif;
+  background:var(--page);
+  color:var(--ink);
+  min-height:100vh;
+  font-size:15px;
+  line-height:1.6;
+}
+
+/* ─── HEADER ─── */
+.site-header {
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:200;
+}
+.header-inner {
+  max-width:1160px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;height:64px;
+}
+.wordmark {
+  font-family:'Fraunces',serif;
+  font-size:20px;font-weight:600;letter-spacing:-0.3px;
+  color:var(--ink);display:flex;align-items:center;gap:8px;
+}
+.wordmark-dot {
+  width:8px;height:8px;border-radius:50%;
+  background:var(--mauve);display:inline-block;
+}
+.header-nav {
+  display:flex;align-items:center;gap:6px;
+}
+.nav-link {
+  font-size:13px;color:var(--ink-mid);padding:6px 12px;
+  border-radius:8px;cursor:pointer;transition:background 0.15s,color 0.15s;
+  border:none;background:none;font-family:'Inter',sans-serif;
+}
+.nav-link:hover{background:var(--page);color:var(--ink);}
+.btn-primary {
+  background:var(--mauve);color:#fff;border:none;
+  padding:9px 20px;border-radius:50px;font-size:14px;font-weight:500;
+  cursor:pointer;font-family:'Inter',sans-serif;
+  transition:opacity 0.15s,transform 0.1s;
+  display:flex;align-items:center;gap:6px;
+}
+.btn-primary:hover{opacity:0.88;}
+.btn-primary:active{transform:scale(0.97);}
+
+/* ─── HERO ─── */
+.hero {
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  padding:56px 28px 48px;
+  text-align:center;
+}
+.hero-eyebrow {
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--mauve-light);color:var(--mauve);
+  font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;
+  padding:5px 14px;border-radius:50px;margin-bottom:20px;
+}
+.hero-title {
+  font-family:'Fraunces',serif;
+  font-size:clamp(32px,5vw,52px);
+  font-weight:300;line-height:1.15;letter-spacing:-1px;
+  color:var(--ink);max-width:700px;margin:0 auto 16px;
+}
+.hero-title em {font-style:italic;color:var(--mauve);}
+.hero-sub {
+  font-size:16px;color:var(--ink-mid);
+  max-width:500px;margin:0 auto 32px;line-height:1.65;
+}
+.hero-cta {
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--mauve);color:#fff;
+  padding:14px 32px;border-radius:50px;
+  font-size:15px;font-weight:500;cursor:pointer;
+  border:none;font-family:'Inter',sans-serif;
+  transition:opacity 0.15s,transform 0.1s;
+}
+.hero-cta:hover{opacity:0.88;}
+.hero-cta:active{transform:scale(0.98);}
+.hero-pills {
+  display:flex;flex-wrap:wrap;justify-content:center;gap:8px;
+  margin-top:28px;
+}
+.hero-pill {
+  font-size:12px;color:var(--ink-soft);
+  background:var(--page);border:1px solid var(--border);
+  padding:5px 14px;border-radius:50px;
+}
+
+/* ─── LAYOUT ─── */
+.layout {
+  max-width:1160px;margin:0 auto;
+  display:grid;grid-template-columns:1fr 300px;
+  gap:28px;padding:32px 28px;align-items:start;
+}
+
+/* ─── FILTER BAR ─── */
+.filter-bar {
+  display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;
+  align-items:center;
+}
+.filter-label {
+  font-size:12px;font-weight:600;color:var(--ink-soft);
+  text-transform:uppercase;letter-spacing:0.06em;
+  margin-right:4px;
+}
+.f-chip {
+  padding:6px 15px;border-radius:50px;border:1px solid var(--border);
+  background:var(--white);color:var(--ink-mid);font-size:13px;
+  cursor:pointer;font-family:'Inter',sans-serif;
+  transition:all 0.15s;white-space:nowrap;
+}
+.f-chip:hover{border-color:var(--mauve-mid);color:var(--mauve);}
+.f-chip.active{background:var(--ink);border-color:var(--ink);color:#fff;}
+
+/* ─── SEARCH ─── */
+.search-wrap {
+  position:relative;margin-bottom:20px;
+}
+.search-wrap input {
+  width:100%;padding:11px 16px 11px 42px;
+  border:1px solid var(--border);border-radius:12px;
+  background:var(--white);font-size:14px;color:var(--ink);
+  font-family:'Inter',sans-serif;outline:none;
+  transition:border-color 0.15s;
+}
+.search-wrap input:focus{border-color:var(--mauve-mid);}
+.search-icon {
+  position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  color:var(--ink-soft);font-size:16px;pointer-events:none;
+}
+
+/* ─── POSTS ─── */
+.post-card {
+  background:var(--white);border-radius:var(--r);
+  border:1px solid var(--border);
+  padding:22px 24px;margin-bottom:14px;
+  transition:border-color 0.15s;
+  animation:rise 0.3s ease both;
+}
+.post-card:hover{border-color:var(--border-mid);}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.post-head {
+  display:flex;align-items:center;gap:10px;margin-bottom:14px;
+}
+.avatar {
+  width:38px;height:38px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:600;color:#fff;flex-shrink:0;
+}
+.post-author{font-size:14px;font-weight:500;color:var(--ink);}
+.post-time{font-size:12px;color:var(--ink-soft);margin-top:1px;}
+.cat-badge {
+  margin-left:auto;font-size:11px;font-weight:600;
+  padding:4px 11px;border-radius:50px;white-space:nowrap;
+}
+
+.post-body {
+  font-size:15px;color:var(--ink);line-height:1.7;
+  margin-bottom:18px;
+}
+.hashtag{color:var(--mauve);font-weight:500;cursor:pointer;}
+.hashtag:hover{text-decoration:underline;}
+
+/* ─── REACTIONS ─── */
+.post-footer {
+  display:flex;align-items:center;gap:6px;
+  padding-top:14px;border-top:1px solid var(--border);
+  flex-wrap:wrap;
+}
+.rxn-btn {
+  display:flex;align-items:center;gap:4px;
+  padding:6px 12px;border-radius:50px;
+  border:1px solid var(--border);background:var(--page);
+  cursor:pointer;font-size:13px;color:var(--ink-mid);
+  font-family:'Inter',sans-serif;transition:all 0.15s;
+}
+.rxn-btn:hover{background:var(--mauve-light);border-color:var(--mauve-mid);color:var(--mauve);}
+.rxn-btn.reacted{background:var(--mauve-light);border-color:var(--mauve);color:var(--mauve);}
+
+.cmt-toggle {
+  margin-left:auto;display:flex;align-items:center;gap:5px;
+  padding:6px 13px;border-radius:50px;border:1px solid var(--border);
+  background:none;cursor:pointer;font-size:13px;color:var(--ink-soft);
+  font-family:'Inter',sans-serif;transition:all 0.15s;
+}
+.cmt-toggle:hover{background:var(--page);color:var(--ink-mid);}
+
+/* ─── COMMENTS ─── */
+.comments-wrap{display:none;margin-top:16px;border-top:1px solid var(--border);padding-top:16px;}
+.comments-wrap.open{display:block;}
+
+.comment{display:flex;gap:9px;margin-bottom:12px;}
+.cmt-avatar{
+  width:26px;height:26px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:600;color:#fff;flex-shrink:0;margin-top:1px;
+}
+.cmt-name{font-size:12px;font-weight:600;color:var(--ink);}
+.cmt-time{font-size:11px;color:var(--ink-soft);margin-left:5px;}
+.cmt-text{font-size:13px;color:var(--ink-mid);line-height:1.55;margin-top:2px;}
+
+.cmt-compose{display:flex;gap:7px;margin-top:10px;}
+.cmt-compose input {
+  flex:1;font-size:13px;padding:8px 14px;
+  border-radius:50px;border:1px solid var(--border);
+  background:var(--page);color:var(--ink);
+  font-family:'Inter',sans-serif;outline:none;
+  transition:border-color 0.15s,background 0.15s;
+}
+.cmt-compose input:focus{border-color:var(--mauve-mid);background:var(--white);}
+.btn-send{
+  width:34px;height:34px;border-radius:50%;
+  background:var(--mauve);border:none;color:#fff;
+  cursor:pointer;font-size:16px;display:flex;
+  align-items:center;justify-content:center;flex-shrink:0;
+  transition:opacity 0.15s;
+}
+.btn-send:hover{opacity:0.83;}
+
+/* ─── SIDEBAR ─── */
+.sidebar{position:sticky;top:92px;}
+
+.sidebar-section{
+  background:var(--white);border-radius:var(--r);
+  border:1px solid var(--border);margin-bottom:16px;
+  overflow:hidden;
+}
+.sidebar-head{
+  padding:16px 20px 12px;
+  border-bottom:1px solid var(--border);
+}
+.sidebar-title{
+  font-size:13px;font-weight:600;color:var(--ink);
+  text-transform:uppercase;letter-spacing:0.07em;
+}
+
+/* Invite card */
+.invite-card{
+  background:var(--slate-bg);border-radius:var(--r);
+  padding:24px 20px;margin-bottom:16px;
+}
+.invite-icon{font-size:26px;margin-bottom:10px;}
+.invite-title{
+  font-family:'Fraunces',serif;font-size:18px;font-weight:300;
+  color:#fff;line-height:1.3;margin-bottom:8px;
+}
+.invite-title em{font-style:italic;color:var(--mauve-mid);}
+.invite-sub{font-size:13px;color:#9896B8;line-height:1.55;margin-bottom:16px;}
+.invite-btn{
+  width:100%;background:var(--mauve);color:#fff;border:none;
+  padding:11px;border-radius:10px;font-size:14px;font-weight:500;
+  cursor:pointer;font-family:'Inter',sans-serif;
+  transition:opacity 0.15s;
+}
+.invite-btn:hover{opacity:0.88;}
+
+/* Trending */
+.trending-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 20px;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background 0.12s;
+}
+.trending-item:last-child{border-bottom:none;}
+.trending-item:hover{background:var(--page);}
+.t-rank{
+  font-size:11px;font-weight:700;color:var(--ink-soft);
+  min-width:16px;text-align:right;
+}
+.t-tag{
+  font-size:13px;font-weight:500;color:var(--mauve);
+}
+.t-arrow{margin-left:auto;color:var(--border-mid);font-size:14px;}
+
+/* Rules strip */
+.rules-strip{padding:0 20px;}
+.rule-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:11px 0;border-bottom:1px solid var(--border);font-size:13px;
+  color:var(--ink-mid);line-height:1.5;
+}
+.rule-item:last-child{border-bottom:none;}
+.rule-icon{font-size:15px;flex-shrink:0;margin-top:1px;}
+
+/* ─── MODAL ─── */
+.modal-bg{
+  position:fixed;inset:0;
+  background:rgba(28,26,46,0.5);
+  z-index:300;display:flex;align-items:center;
+  justify-content:center;padding:20px;
+  opacity:0;pointer-events:none;transition:opacity 0.2s;
+}
+.modal-bg.open{opacity:1;pointer-events:all;}
+.modal{
+  background:var(--white);border-radius:20px;
+  padding:32px;width:100%;max-width:560px;
+  transform:translateY(14px);transition:transform 0.22s;
+}
+.modal-bg.open .modal{transform:translateY(0);}
+.modal-title{
+  font-family:'Fraunces',serif;font-size:24px;font-weight:300;
+  color:var(--ink);margin-bottom:4px;
+}
+.modal-title em{font-style:italic;color:var(--mauve);}
+.modal-sub{font-size:13px;color:var(--ink-soft);margin-bottom:24px;}
+
+.field{margin-bottom:18px;}
+.field-label{
+  font-size:11px;font-weight:600;color:var(--ink-mid);
+  text-transform:uppercase;letter-spacing:0.07em;margin-bottom:7px;
+}
+textarea,input[type=text]{
+  width:100%;font-family:'Inter',sans-serif;font-size:15px;
+  color:var(--ink);border:1px solid var(--border);
+  border-radius:10px;padding:12px 14px;
+  background:var(--page);outline:none;resize:none;
+  transition:border-color 0.15s,background 0.15s;
+}
+textarea:focus,input[type=text]:focus{border-color:var(--mauve-mid);background:var(--white);}
+textarea{min-height:120px;}
+.char-hint{font-size:11px;color:var(--ink-soft);text-align:right;margin-top:5px;}
+
+.cat-pills{display:flex;flex-wrap:wrap;gap:7px;}
+.cat-pill{
+  padding:7px 14px;border-radius:50px;
+  border:1px solid var(--border);font-size:13px;
+  cursor:pointer;background:var(--white);color:var(--ink-mid);
+  font-family:'Inter',sans-serif;transition:all 0.15s;
+}
+.cat-pill:hover{border-color:var(--mauve-mid);color:var(--mauve);}
+.cat-pill.active{background:var(--mauve);border-color:var(--mauve);color:#fff;}
+
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:24px;}
+.btn-ghost{
+  background:none;border:1px solid var(--border);
+  padding:9px 20px;border-radius:50px;font-size:14px;
+  cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink-mid);
+  transition:border-color 0.15s;
+}
+.btn-ghost:hover{border-color:var(--border-mid);}
+.btn-submit{
+  background:var(--mauve);color:#fff;border:none;
+  padding:10px 26px;border-radius:50px;font-size:14px;font-weight:500;
+  cursor:pointer;font-family:'Inter',sans-serif;transition:opacity 0.15s;
+}
+.btn-submit:hover{opacity:0.88;}
+
+/* ─── EMPTY ─── */
+.empty{text-align:center;padding:64px 20px;color:var(--ink-soft);}
+.empty-icon{font-size:38px;margin-bottom:12px;}
+.empty-h{
+  font-family:'Fraunces',serif;font-size:20px;font-weight:300;
+  color:var(--ink-mid);margin-bottom:6px;
+}
+.empty-p{font-size:14px;}
+
+/* ─── TOAST ─── */
+.toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(6px);
+  background:var(--ink);color:#fff;
+  padding:12px 22px;border-radius:12px;font-size:14px;
+  z-index:400;opacity:0;pointer-events:none;
+  transition:all 0.22s;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@media(max-width:820px){
+  .layout{grid-template-columns:1fr;}
+  .sidebar{position:static;}
+  .hero-title{font-size:28px;}
+  .hero{padding:40px 20px 36px;}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="wordmark">
+      <span class="wordmark-dot"></span>
+      Unfiltered
+    </div>
+    <nav class="header-nav">
+      <button class="btn-primary" onclick="openModal()">
+        <span style="font-size:16px;line-height:1">+</span> Share a thought
+      </button>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span>🔒</span> Anonymous · No login · No tracking
+  </div>
+  <h1 class="hero-title">A space to say what you<br><em>actually</em> feel</h1>
+  <p class="hero-sub">No names, no consequences. Just honest people sharing honest feelings — and others listening with empathy.</p>
+  <button class="hero-cta" onclick="openModal()">
+    Let something out →
+  </button>
+  <div class="hero-pills">
+    <span class="hero-pill">💼 Work stress</span>
+    <span class="hero-pill">💔 Relationship pain</span>
+    <span class="hero-pill">🧠 Mental health</span>
+    <span class="hero-pill">🏠 Family tension</span>
+    <span class="hero-pill">✨ Just life</span>
+  </div>
+</section>
+
+<div class="layout">
+  <main>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Search posts or #hashtags…" oninput="filterPosts()">
+    </div>
+    <div class="filter-bar">
+      <span class="filter-label">Filter</span>
+      <button class="f-chip active" onclick="setFilter('All',this)">All</button>
+      <button class="f-chip" onclick="setFilter('Work',this)">💼 Work</button>
+      <button class="f-chip" onclick="setFilter('Relationship',this)">💔 Relationship</button>
+      <button class="f-chip" onclick="setFilter('Family',this)">🏠 Family</button>
+      <button class="f-chip" onclick="setFilter('Mental Health',this)">🧠 Mental Health</button>
+      <button class="f-chip" onclick="setFilter('Life',this)">🌀 Life</button>
+      <button class="f-chip" onclick="setFilter('Random',this)">✨ Random</button>
+    </div>
+    <div id="posts-container"></div>
+  </main>
+
+  <aside class="sidebar">
+    <div class="invite-card">
+      <div class="invite-icon">🌬️</div>
+      <div class="invite-title">You don't have to<br>carry it <em>alone</em></div>
+      <p class="invite-sub">Whatever's weighing on you — say it here. Someone will listen. No judgment, no identity, no trace.</p>
+      <button class="invite-btn" onclick="openModal()">Share your thoughts</button>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-head">
+        <div class="sidebar-title">🔥 Trending now</div>
+      </div>
+      <div id="trending-list"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-head">
+        <div class="sidebar-title">This space</div>
+      </div>
+      <div class="rules-strip">
+        <div class="rule-item"><span class="rule-icon">👤</span>No accounts, no profiles — ever.</div>
+        <div class="rule-item"><span class="rule-icon">🔇</span>No ads, no algorithms pushing content.</div>
+        <div class="rule-item"><span class="rule-icon">🤍</span>Empathy only. Unkindness gets removed.</div>
+        <div class="rule-item"><span class="rule-icon">🌍</span>Open to anyone, anywhere.</div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- COMPOSE MODAL -->
+<div class="modal-bg" id="modal" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-title">Say what you feel, <em>honestly</em></div>
+    <p class="modal-sub">Anonymous. Safe. No judgment. Use #hashtags to join conversations.</p>
+
+    <div class="field">
+      <div class="field-label">What's on your mind?</div>
+      <textarea id="post-text" placeholder="Type it out… frustration, sadness, gratitude, anything." maxlength="500" oninput="updateChar()"></textarea>
+      <div class="char-hint"><span id="char-num">0</span> / 500</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Your name (optional)</div>
+      <input type="text" id="post-name" placeholder="Leave blank to post as Anonymous" maxlength="30">
+    </div>
+
+    <div class="field">
+      <div class="field-label">Category</div>
+      <div class="cat-pills" id="cat-grid">
+        <button class="cat-pill" onclick="selectCat(this,'Work')">💼 Work</button>
+        <button class="cat-pill" onclick="selectCat(this,'Relationship')">💔 Relationship</button>
+        <button class="cat-pill" onclick="selectCat(this,'Family')">🏠 Family</button>
+        <button class="cat-pill" onclick="selectCat(this,'Mental Health')">🧠 Mental Health</button>
+        <button class="cat-pill" onclick="selectCat(this,'Life')">🌀 Life</button>
+        <button class="cat-pill" onclick="selectCat(this,'Random')">✨ Random</button>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-submit" onclick="submitPost()">Post it →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CATS = {
+  'Work':          {bg:'#FFF3E0',tx:'#8C5500',emoji:'💼'},
+  'Relationship':  {bg:'#FAEAED',tx:'#8C2840',emoji:'💔'},
+  'Family':        {bg:'#E5F5EE',tx:'#1E5E40',emoji:'🏠'},
+  'Mental Health': {bg:'#EDE8FA',tx:'#4A2D9A',emoji:'🧠'},
+  'Life':          {bg:'#E7F0FB',tx:'#1A4A8A',emoji:'🌀'},
+  'Random':        {bg:'#F3EEF8',tx:'#5C3D88',emoji:'✨'},
+};
+const AV_COLORS=['#7C5CBF','#C2516A','#4A9B72','#3A7DC9','#C47B1A','#9B5EA0','#5C8A9B'];
+const ANON=['Stargazer','Quiet Storm','Midnight','Ember','Wanderer','Echo','Solstice','Dusk','Rainfall','Cipher'];
+let posts=[];
+let activeFilter='All';
+let selectedCat='';
+
+function uid(){return Math.random().toString(36).slice(2,8);}
+function relTime(ts){
+  const d=(Date.now()-ts)/1000;
+  if(d<60)return'just now';
+  if(d<3600)return Math.floor(d/60)+'m ago';
+  if(d<86400)return Math.floor(d/3600)+'h ago';
+  return Math.floor(d/86400)+'d ago';
+}
+function rnd(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function avColor(s){return AV_COLORS[s.charCodeAt(0)%AV_COLORS.length];}
+function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function parseTags(t){
+  const r=[],re=/#(\w+)/g;let m;
+  while((m=re.exec(t))!==null)r.push(m[1].toLowerCase());
+  return[...new Set(r)];
+}
+function fmtBody(t){
+  return esc(t).replace(/#(\w+)/g,'<span class="hashtag" onclick="filterByTag(\'#$1\')">#$1</span>');
+}
+function getTrending(){
+  const c={};
+  posts.forEach(p=>parseTags(p.text).forEach(t=>{c[t]=(c[t]||0)+1;}));
+  return Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,10);
+}
+function renderTrending(){
+  const el=document.getElementById('trending-list');
+  const items=getTrending();
+  if(!items.length){
+    el.innerHTML='<div style="padding:14px 20px;font-size:13px;color:#9693A8">No trends yet — start posting!</div>';
+    return;
+  }
+  el.innerHTML=items.map(([tag],i)=>`
+    <div class="trending-item" onclick="filterByTag('#${tag}')">
+      <span class="t-rank">${i+1}</span>
+      <span class="t-tag">#${tag}</span>
+      <span class="t-arrow">›</span>
+    </div>`).join('');
+}
+
+function openModal(){document.getElementById('modal').classList.add('open');setTimeout(()=>document.getElementById('post-text').focus(),220);}
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('post-text').value='';
+  document.getElementById('post-name').value='';
+  document.getElementById('char-num').textContent='0';
+  document.querySelectorAll('.cat-pill').forEach(c=>c.classList.remove('active'));
+  selectedCat='';
+}
+function closeModalOutside(e){if(e.target===document.getElementById('modal'))closeModal();}
+function updateChar(){document.getElementById('char-num').textContent=document.getElementById('post-text').value.length;}
+function selectCat(el,cat){
+  document.querySelectorAll('.cat-pill').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');selectedCat=cat;
+}
+function setFilter(cat,el){
+  activeFilter=cat;
+  document.querySelectorAll('.f-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('search-input').value='';
+  renderPosts();
+}
+function filterByTag(tag){
+  document.getElementById('search-input').value=tag;
+  filterPosts();
+}
+function filterPosts(){renderPosts(document.getElementById('search-input').value.toLowerCase());}
+
+function submitPost(){
+  const text=document.getElementById('post-text').value.trim();
+  if(!text){showToast('Write something first');return;}
+  const name=document.getElementById('post-name').value.trim()||rnd(ANON);
+  posts.unshift({id:uid(),text,name,cat:selectedCat||'Random',ts:Date.now(),
+    reactions:{'❤️':0,'🤝':0,'🤗':0,'👎':0},reacted:{},comments:[],open:false});
+  closeModal();renderAll();
+  showToast('Your feelings are heard 🤍');
+}
+
+function react(pid,emoji){
+  const p=posts.find(x=>x.id===pid);if(!p)return;
+  if(p.reacted[emoji]){p.reactions[emoji]=Math.max(0,p.reactions[emoji]-1);delete p.reacted[emoji];}
+  else{p.reactions[emoji]++;p.reacted[emoji]=true;}
+  renderAll();
+}
+function toggleCmt(pid){
+  const p=posts.find(x=>x.id===pid);if(!p)return;
+  p.open=!p.open;renderAll();
+}
+function addCmt(pid){
+  const inp=document.getElementById('ci-'+pid);
+  const t=inp.value.trim();if(!t)return;
+  const p=posts.find(x=>x.id===pid);if(!p)return;
+  p.comments.push({id:uid(),text:t,name:rnd(ANON),ts:Date.now()});
+  renderAll();
+  setTimeout(()=>{const el=document.getElementById('ci-'+pid);if(el)el.focus();},50);
+}
+
+function renderPosts(q){
+  const c=document.getElementById('posts-container');
+  let list=posts;
+  if(activeFilter!=='All')list=list.filter(p=>p.cat===activeFilter);
+  if(q){list=list.filter(p=>p.text.toLowerCase().includes(q)||p.name.toLowerCase().includes(q)||p.cat.toLowerCase().includes(q));}
+  if(!list.length){
+    c.innerHTML=`<div class="empty"><div class="empty-icon">🌙</div><div class="empty-h">Nothing here yet</div><p class="empty-p">Be the first to let something out.</p></div>`;
+    return;
+  }
+  c.innerHTML=list.map(p=>{
+    const cs=CATS[p.cat]||CATS['Random'];
+    const av=avColor(p.name);
+    const cmtsHtml=p.open?`
+      <div class="comments-wrap open">
+        ${p.comments.map(cm=>`
+          <div class="comment">
+            <div class="cmt-avatar" style="background:${avColor(cm.name)}">${initials(cm.name)}</div>
+            <div>
+              <span class="cmt-name">${esc(cm.name)}</span>
+              <span class="cmt-time">${relTime(cm.ts)}</span>
+              <div class="cmt-text">${esc(cm.text)}</div>
+            </div>
+          </div>`).join('')}
+        <div class="cmt-compose">
+          <input type="text" id="ci-${p.id}" placeholder="Add a kind word…" maxlength="200" onkeydown="if(event.key==='Enter')addCmt('${p.id}')">
+          <button class="btn-send" onclick="addCmt('${p.id}')">↑</button>
+        </div>
+      </div>` : `<div class="comments-wrap"></div>`;
+
+    return`<div class="post-card">
+      <div class="post-head">
+        <div class="avatar" style="background:${av}">${initials(p.name)}</div>
+        <div><div class="post-author">${esc(p.name)}</div><div class="post-time">${relTime(p.ts)}</div></div>
+        <span class="cat-badge" style="background:${cs.bg};color:${cs.tx}">${cs.emoji} ${p.cat}</span>
+      </div>
+      <div class="post-body">${fmtBody(p.text)}</div>
+      <div class="post-footer">
+        ${Object.entries(p.reactions).map(([e,n])=>`
+          <button class="rxn-btn ${p.reacted[e]?'reacted':''}" onclick="react('${p.id}','${e}')">
+            ${e} ${n}
+          </button>`).join('')}
+        <button class="cmt-toggle" onclick="toggleCmt('${p.id}')">
+          💬 ${p.comments.length?p.comments.length+' ':''} ${p.open?'hide':'reply'}
+        </button>
+      </div>
+      ${cmtsHtml}
+    </div>`;
+  }).join('');
+}
+
+function renderAll(){
+  renderPosts(document.getElementById('search-input').value.toLowerCase()||undefined);
+  renderTrending();
+}
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+posts=[
+  {id:uid(),name:'Echo',text:"I cried in my car for 20 minutes before walking into work today. Smiled at everyone like nothing happened. #burnout #work #mask",cat:'Work',ts:Date.now()-3600000*2,reactions:{'❤️':14,'🤝':9,'🤗':22,'👎':0},reacted:{},open:false,comments:[{id:uid(),name:'Wanderer',text:"I do this too. You're not alone in this. 💙",ts:Date.now()-3000000}]},
+  {id:uid(),name:'Midnight',text:"My therapist asked me what brings me joy and I genuinely couldn't answer. That scared me more than anything else this year. #mentalhealth #therapy #lost",cat:'Mental Health',ts:Date.now()-3600000*5,reactions:{'❤️':31,'🤝':17,'🤗':45,'👎':1},reacted:{},open:false,comments:[{id:uid(),name:'Stargazer',text:'Thank you for sharing this. The fact that you noticed means something.',ts:Date.now()-3000000}]},
+  {id:uid(),name:'Solstice',text:"Been together 7 years and they still can't remember how I take my coffee. It's not about the coffee. #relationship #feelinginvisible #loneliness",cat:'Relationship',ts:Date.now()-86400000,reactions:{'❤️':28,'🤝':12,'🤗':19,'👎':0},reacted:{},open:false,comments:[]},
+  {id:uid(),name:'Dusk',text:"My parents are proud of my job. But I feel nothing doing it every day. I feel guilty for wanting more. #life #purpose #guilt",cat:'Life',ts:Date.now()-86400000*2,reactions:{'❤️':40,'🤝':21,'🤗':38,'👎':2},reacted:{},open:false,comments:[{id:uid(),name:'Ember',text:"Wanting more doesn't make you ungrateful. It makes you human.",ts:Date.now()-86000000}]},
+  {id:uid(),name:'Anonymous',text:"Told my manager I was overwhelmed. They replied 'we all are' and moved on. #work #burnout #notlistened #toxic",cat:'Work',ts:Date.now()-3600000*8,reactions:{'❤️':19,'🤝':33,'🤗':11,'👎':0},reacted:{},open:false,comments:[]},
+  {id:uid(),name:'Quiet Storm',text:"I don't miss him. I miss who I was when I was with him. That's somehow lonelier. #relationship #grief #healing",cat:'Relationship',ts:Date.now()-86400000*3,reactions:{'❤️':62,'🤝':18,'🤗':44,'👎':0},reacted:{},open:false,comments:[{id:uid(),name:'Solstice',text:'This hit differently. Thank you.',ts:Date.now()-80000000}]},
+];
+renderAll();
+</script>
+</body>
+</html>
