@@ -722,57 +722,73 @@ async function adminDelete(postId){
   }catch(err){console.error(err);showToast('Delete failed — check Supabase delete policy');}
 }
 
-/* ── READS DATA ── */
-const READS={
-  mindset:{
-    featured:{emoji:'🧠',source:'Harvard Business Review',title:'The Science of Building Resilience When Work Feels Impossible',desc:'Researchers found that people who reframe adversity as a challenge — rather than a threat — show measurably better outcomes in wellbeing and performance over time.',tag:'Resilience',year:'2024',url:'https://hbr.org/2023/01/how-to-build-resilience-at-work'},
-    articles:[
-      {emoji:'💭',source:'Psychology Today',title:'Why You Feel Empty Even When Life Looks Fine',desc:'The hidden emotional labor of keeping up appearances and what to do when your inner world doesn\'t match your outer one.',tag:'Mental Health',year:'2024',url:'https://www.psychologytoday.com/us/blog/emotional-fitness'},
-      {emoji:'🔄',source:'MIT Sloan Review',title:'How Chronic Stress Rewires Your Brain — and How to Reverse It',desc:'New neuroscience shows sustained workplace stress physically alters neural pathways. The good news: recovery is measurable.',tag:'Neuroscience',year:'2024',url:'https://sloanreview.mit.edu/article/the-stress-performance-paradox/'},
-      {emoji:'🌱',source:'Greater Good Science Center',title:'The Power of Self-Compassion Over Self-Criticism',desc:'Studies from UC Berkeley show self-compassion — not self-discipline — is the strongest predictor of bouncing back after failure.',tag:'Wellbeing',year:'2023',url:'https://greatergood.berkeley.edu/topic/self-compassion'},
-      {emoji:'😶',source:'The Atlantic',title:'The Quiet Crisis of Emotional Numbness at Work',desc:'A growing number of people describe feeling nothing — not burned out, not sad, just flat. What experts say is happening.',tag:'Burnout',year:'2024',url:'https://www.theatlantic.com/health/'},
-      {emoji:'🧘',source:'American Psychological Association',title:'Mindfulness at Work: What the Research Actually Shows',desc:'Separating evidence-based mindfulness from corporate wellness theatre — and what actually moves the needle on stress.',tag:'Research',year:'2023',url:'https://www.apa.org/topics/mindfulness'},
-    ],
-    research:[
-      {label:'Study',title:'Psychological Safety and Team Performance',source:'Google Project Aristotle',year:'2023',url:'https://rework.withgoogle.com/print/guides/5721312655835136/'},
-      {label:'Report',title:'Global Burnout Index: 67% of Workers Report Burnout',source:'Asana Anatomy of Work',year:'2024',url:'https://asana.com/resources/anatomy-of-work'},
-      {label:'Study',title:'The Link Between Chronic Stress and Cognitive Decline',source:'Stanford Medicine',year:'2023',url:'https://med.stanford.edu/news.html'},
-      {label:'Research',title:'Why Humans Are Wired to Ruminate — and How to Stop',source:'Yale University',year:'2024',url:'https://news.yale.edu/'},
-    ]
+/* ── LIVE NEWS — NewsData.io ── */
+const NEWS_API_KEY = 'pub_5b298c2e88ee4a5b988156cea3e20610';
+const NEWS_CACHE_MINS = 60; /* refresh articles every 60 minutes */
+
+const TAB_QUERIES = {
+  mindset: {
+    q: 'mental health OR mindset OR resilience OR burnout OR stress OR wellbeing',
+    label: '🧠 Mindset',
+    emoji: '🧠',
+    color: '#EDE8FA',
   },
-  work:{
-    featured:{emoji:'🔥',source:'The Guardian',title:'The Burnout Generation: Why Work Has Never Felt This Exhausting',desc:'Across industries and age groups, a generation of workers is hitting a wall. This deep investigation explores the systemic causes — and what recovery actually looks like.',tag:'Burnout',year:'2024',url:'https://www.theguardian.com/society/burnout'},
-    articles:[
-      {emoji:'🏢',source:'BBC Worklife',title:'The Rise of "Quiet Quitting" — and What It Really Means',desc:'Millions of workers are doing the bare minimum. Experts say it\'s not laziness — it\'s a rational response to broken workplace contracts.',tag:'Culture',year:'2024',url:'https://www.bbc.com/worklife/'},
-      {emoji:'📉',source:'Wall Street Journal',title:'Return to Office Mandates Are Backfiring. Here\'s the Data.',desc:'New research shows forced RTO policies correlate with increased attrition among high performers and lower engagement across the board.',tag:'Remote Work',year:'2024',url:'https://www.wsj.com/business/'},
-      {emoji:'😤',source:'Harvard Business Review',title:'Why Toxic Managers Survive — and What HR Gets Wrong',desc:'A landmark study of 60,000 managers found toxic behavior is rarely punished when productivity numbers look good.',tag:'Management',year:'2023',url:'https://hbr.org/topic/leadership'},
-      {emoji:'⏰',source:'MIT Technology Review',title:'AI Is Changing What Work Feels Like — Not Just Who Does It',desc:'Beyond job displacement, researchers track how AI-assisted work is increasing cognitive load for workers who remain.',tag:'Future of Work',year:'2024',url:'https://www.technologyreview.com/topic/work/'},
-      {emoji:'💸',source:'Fortune',title:'The Real Cost of a Bad Boss: $750 Billion Per Year',desc:'New economic analysis quantifies what bad management costs the economy. The toll on individuals is much harder to measure.',tag:'Leadership',year:'2024',url:'https://fortune.com/section/leadership/'},
-    ],
-    research:[
-      {label:'Report',title:'State of the Global Workplace 2024',source:'Gallup',year:'2024',url:'https://www.gallup.com/workplace/349484/state-of-the-global-workplace.aspx'},
-      {label:'Survey',title:'77% of Workers Have Experienced Burnout at Current Job',source:'Deloitte Insights',year:'2024',url:'https://www2.deloitte.com/us/en/insights/topics/talent/workplace-burnout-survey.html'},
-      {label:'Study',title:'Psychological Contract Breach and Employee Disengagement',source:'Journal of Organizational Behavior',year:'2023',url:'https://onlinelibrary.wiley.com/journal/10991379'},
-      {label:'Research',title:'Job Demands-Resources Model: Updated Evidence',source:'Journal of Applied Psychology',year:'2023',url:'https://psycnet.apa.org/PsycARTICLES/journal/apl/'},
-    ]
+  work: {
+    q: 'workplace OR work crisis OR quiet quitting OR toxic workplace OR employee burnout OR remote work',
+    label: '💼 Work Crisis',
+    emoji: '💼',
+    color: '#FFF3E0',
   },
-  jobs:{
-    featured:{emoji:'📊',source:'Financial Times',title:'The Great Recalibration: What the Job Market Really Looks Like in 2025',desc:'After years of turbulence — the Great Resignation, mass layoffs, AI disruption — the job market has settled into something new and harder to read. A data-driven analysis.',tag:'Job Market',year:'2025',url:'https://www.ft.com/work-careers'},
-    articles:[
-      {emoji:'🤖',source:'McKinsey Global Institute',title:'Which Jobs AI Will Replace — and Which It Will Create',desc:'New modelling suggests 30% of current tasks will be automatable by 2030. But the picture is more nuanced than headlines suggest.',tag:'AI & Jobs',year:'2024',url:'https://www.mckinsey.com/featured-insights/future-of-work'},
-      {emoji:'📉',source:'Bloomberg',title:'Tech Layoffs Haven\'t Stopped. Here\'s Where We Are Now.',desc:'A running tracker of major layoffs, the sectors hardest hit, and what the data says about hiring appetite heading into the next cycle.',tag:'Layoffs',year:'2025',url:'https://www.bloomberg.com/technology'},
-      {emoji:'🎓',source:'Pew Research Center',title:'Is a College Degree Still Worth It? What the Data Says',desc:'New longitudinal data shows the college premium is shrinking for some fields but growing for others. The picture has never been more complex.',tag:'Education',year:'2024',url:'https://www.pewresearch.org/topics/economy-work/'},
-      {emoji:'🌍',source:'World Economic Forum',title:'The Jobs of the Future: Skills That Will Matter in 2030',desc:'The WEF\'s latest report identifies the 10 fastest-growing roles globally — and the 10 that will see the steepest decline.',tag:'Future Skills',year:'2025',url:'https://www.weforum.org/reports/the-future-of-jobs-report-2023/'},
-      {emoji:'💼',source:'LinkedIn Economic Graph',title:'Hiring Slowed Everywhere. Some Industries Are Different.',desc:'LinkedIn\'s workforce data reveals which sectors are quietly hiring while others contract — and what skills cross industry lines.',tag:'Hiring',year:'2025',url:'https://economicgraph.linkedin.com/'},
-    ],
-    research:[
-      {label:'Report',title:'Future of Jobs Report 2025',source:'World Economic Forum',year:'2025',url:'https://www.weforum.org/reports/the-future-of-jobs-report-2023/'},
-      {label:'Data',title:'US Jobs Openings and Labor Turnover (JOLTS)',source:'Bureau of Labor Statistics',year:'2025',url:'https://www.bls.gov/jlt/'},
-      {label:'Study',title:'Skills-Based Hiring: Evidence From Early Adopters',source:'Harvard Business School',year:'2024',url:'https://www.hbs.edu/managing-the-future-of-work/'},
-      {label:'Report',title:'Global Employment Trends for Youth 2025',source:'International Labour Organization',year:'2025',url:'https://www.ilo.org/global/research/global-reports/'},
-    ]
+  jobs: {
+    q: 'job market OR layoffs OR hiring OR unemployment OR AI jobs OR career',
+    label: '📈 Job Market',
+    emoji: '📈',
+    color: '#E7F0FB',
   }
 };
+
+const newsCache = {};
+
+function getCacheKey(tab){ return 'fm_news_'+tab; }
+function getCached(tab){
+  try{
+    const raw = sessionStorage.getItem(getCacheKey(tab));
+    if(!raw) return null;
+    const {ts, data} = JSON.parse(raw);
+    if(Date.now() - ts < NEWS_CACHE_MINS * 60 * 1000) return data;
+    return null;
+  }catch(e){ return null; }
+}
+function setCache(tab, data){
+  try{ sessionStorage.setItem(getCacheKey(tab), JSON.stringify({ts:Date.now(), data})); }catch(e){}
+}
+
+async function fetchNews(tab){
+  const cached = getCached(tab);
+  if(cached) return cached;
+
+  const q = TAB_QUERIES[tab].q;
+  /* No country filter = worldwide. language=english for readability */
+  const url = `https://newsdata.io/api/1/news?apikey=${NEWS_API_KEY}&q=${encodeURIComponent(q)}&language=english&size=10`;
+
+  const res = await fetch(url);
+  if(!res.ok) throw new Error('API error '+res.status);
+  const json = await res.json();
+  const articles = (json.results || []).filter(a => a.title && a.link);
+  setCache(tab, articles);
+  return articles;
+}
+
+const FALLBACK_EMOJIS = ['📰','💡','🔍','📊','🧠','💼','🌍','⚡','🎯','📈'];
+function articleEmoji(i){ return FALLBACK_EMOJIS[i % FALLBACK_EMOJIS.length]; }
+function articleDate(dateStr){
+  if(!dateStr) return '';
+  try{
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  }catch(e){ return dateStr; }
+}
+function truncate(str, n){ return str && str.length > n ? str.slice(0,n)+'…' : (str||''); }
 
 function showTab(tab,btn){
   activeTab=tab;
@@ -780,43 +796,76 @@ function showTab(tab,btn){
   if(btn)btn.classList.add('active');
   renderReads();
 }
-function renderReads(){
-  const c=document.getElementById('reads-container');
-  const d=READS[activeTab];if(!d)return;
-  const f=d.featured;
-  c.innerHTML=`
-    <div class="reads-grid">
-      <a class="article-card featured" href="${f.url}" target="_blank" rel="noopener">
-        <div class="article-thumb" style="font-size:52px">${f.emoji}</div>
-        <div class="article-body">
-          <div class="article-source">${f.source} · <span class="article-tag">${f.tag}</span></div>
-          <div class="article-title">${f.title}</div>
-          <div class="article-desc">${f.desc}</div>
-          <div class="article-meta">📅 ${f.year} · Featured read</div>
-        </div>
-      </a>
-      ${d.articles.map(a=>`
-        <a class="article-card" href="${a.url}" target="_blank" rel="noopener">
-          <div class="article-thumb" style="font-size:44px">${a.emoji}</div>
-          <div class="article-body">
-            <div class="article-source">${a.source} · <span class="article-tag">${a.tag}</span></div>
-            <div class="article-title">${a.title}</div>
-            <div class="article-desc">${a.desc}</div>
-            <div class="article-meta">📅 ${a.year}</div>
-          </div>
-        </a>`).join('')}
-    </div>
-    <div class="research-section">
-      <div class="section-label">📄 Research & Reports</div>
-      <div class="research-grid">
-        ${d.research.map(r=>`
-          <a class="research-card" href="${r.url}" target="_blank" rel="noopener">
-            <div class="research-label">${r.label}</div>
-            <div class="research-title">${r.title}</div>
-            <div class="research-source">${r.source}<span class="research-year">${r.year}</span></div>
-          </a>`).join('')}
-      </div>
+
+async function renderReads(){
+  const c = document.getElementById('reads-container');
+  const tabData = TAB_QUERIES[activeTab];
+  if(!tabData) return;
+
+  /* Show skeleton loader */
+  c.innerHTML = `
+    <div style="text-align:center;padding:60px 20px;color:var(--ink-soft)">
+      <div class="spinner"></div>
+      <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:300;color:var(--ink-mid);margin-top:12px">Fetching latest articles worldwide…</div>
+      <div style="font-size:13px;margin-top:6px">Live from NewsData.io</div>
     </div>`;
+
+  try{
+    const articles = await fetchNews(activeTab);
+
+    if(!articles.length){
+      c.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--ink-soft)">
+        <div style="font-size:36px;margin-bottom:12px">📭</div>
+        <div style="font-family:'Fraunces',serif;font-size:18px;color:var(--ink-mid)">No articles found right now</div>
+        <div style="font-size:13px;margin-top:6px">Try again in a few minutes</div>
+      </div>`;
+      return;
+    }
+
+    const featured = articles[0];
+    const rest = articles.slice(1, 7);
+
+    c.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+        <div style="font-size:13px;color:var(--ink-soft)">🌍 Worldwide · Live articles · Updates every hour</div>
+        <button onclick="clearCacheAndReload()" style="font-size:12px;color:var(--mauve);background:var(--mauve-light);border:1px solid var(--mauve-mid);padding:5px 14px;border-radius:50px;cursor:pointer;font-family:'Inter',sans-serif;">🔄 Refresh</button>
+      </div>
+      <div class="reads-grid">
+        <a class="article-card featured" href="${featured.link}" target="_blank" rel="noopener">
+          <div class="article-thumb" style="font-size:52px;background:${tabData.color}">${tabData.emoji}</div>
+          <div class="article-body">
+            <div class="article-source">${esc(featured.source_id||'News')} · <span class="article-tag">Featured</span></div>
+            <div class="article-title">${esc(truncate(featured.title,120))}</div>
+            <div class="article-desc">${esc(truncate(featured.description||featured.content||'',200))}</div>
+            <div class="article-meta">📅 ${articleDate(featured.pubDate)} · ${featured.country?featured.country.join(', ').toUpperCase():' Worldwide'}</div>
+          </div>
+        </a>
+        ${rest.map((a,i)=>`
+          <a class="article-card" href="${a.link}" target="_blank" rel="noopener">
+            <div class="article-thumb" style="font-size:44px;background:${tabData.color}">${articleEmoji(i+1)}</div>
+            <div class="article-body">
+              <div class="article-source">${esc(a.source_id||'News')} ${a.country?'· <span class=\"article-tag\">'+a.country[0].toUpperCase()+'</span>':''}</div>
+              <div class="article-title">${esc(truncate(a.title,100))}</div>
+              <div class="article-desc">${esc(truncate(a.description||a.content||'',160))}</div>
+              <div class="article-meta">📅 ${articleDate(a.pubDate)}</div>
+            </div>
+          </a>`).join('')}
+      </div>`;
+
+  }catch(err){
+    console.error('News fetch error:',err);
+    c.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--ink-soft)">
+      <div style="font-size:36px;margin-bottom:12px">⚠️</div>
+      <div style="font-family:'Fraunces',serif;font-size:18px;color:var(--ink-mid)">Couldn't load live articles</div>
+      <div style="font-size:13px;margin-top:6px;margin-bottom:16px">API limit may have been reached (200/day on free plan)</div>
+      <button onclick="renderReads()" style="background:var(--mauve);color:#fff;border:none;padding:10px 22px;border-radius:50px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;">Try again</button>
+    </div>`;
+  }
+}
+
+function clearCacheAndReload(){
+  ['mindset','work','jobs'].forEach(t=>sessionStorage.removeItem(getCacheKey(t)));
+  renderReads();
 }
 
 /* ── BOOT ── */
