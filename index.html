@@ -910,4 +910,218 @@ subscribeRealtime();
 })();
 </script>
 </body>
+</html>/* ── LIVE RSS NEWS FEEDS ── */
+/* Uses rss2json.com free service — no API key, no CORS, always works */
+const RSS_API = 'https://api.rss2json.com/v1/api.json?rss_url=';
+const NEWS_CACHE_MINS = 90;
+
+const TAB_FEEDS = {
+  mindset: {
+    emoji: '🧠', color: '#EDE8FA',
+    feeds: [
+      'https://feeds.feedburner.com/PsychologyToday',
+      'https://greatergood.berkeley.edu/feeds/news',
+      'https://www.mind.org.uk/news-campaigns/news/rss/',
+      'https://www.mentalhealthamerica.net/rss.xml',
+    ]
+  },
+  work: {
+    emoji: '💼', color: '#FFF3E0',
+    feeds: [
+      'https://feeds.hbr.org/harvardbusiness',
+      'https://feeds.feedburner.com/fastcompany/headlines',
+      'https://www.bbc.co.uk/feeds/rss/business/newsbeat/rss.xml',
+      'https://fortune.com/feed/',
+    ]
+  },
+  jobs: {
+    emoji: '📈', color: '#E7F0FB',
+    feeds: [
+      'https://www.theguardian.com/money/work-and-careers/rss',
+      'https://feeds.bloomberg.com/markets/news.rss',
+      'https://rss.nytimes.com/services/xml/rss/nyt/Business.xml',
+      'https://feeds.reuters.com/reuters/businessNews',
+    ]
+  }
+};
+
+function getCacheKey(tab){ return 'fm_rss_'+tab; }
+function getCached(tab){
+  try{
+    const raw = sessionStorage.getItem(getCacheKey(tab));
+    if(!raw) return null;
+    const {ts, data} = JSON.parse(raw);
+    if(Date.now() - ts < NEWS_CACHE_MINS * 60 * 1000) return data;
+    return null;
+  }catch(e){ return null; }
+}
+function setCache(tab, data){
+  try{ sessionStorage.setItem(getCacheKey(tab), JSON.stringify({ts:Date.now(), data})); }catch(e){}
+}
+
+async function fetchOneFeed(url){
+  try{
+    const r = await fetch(RSS_API + encodeURIComponent(url) + '&count=5');
+    const j = await r.json();
+    if(j.status !== 'ok') return [];
+    return (j.items||[]).map(a=>({
+      title: a.title,
+      description: a.description ? a.description.replace(/<[^>]+>/g,'').slice(0,200) : '',
+      url: a.link,
+      source: j.feed ? j.feed.title : 'News',
+      publishedAt: a.pubDate,
+      thumbnail: a.thumbnail || null,
+    }));
+  }catch(e){ return []; }
+}
+
+async function fetchNews(tab){
+  const cached = getCached(tab);
+  if(cached && cached.length) return cached;
+
+  const feeds = TAB_FEEDS[tab].feeds;
+  /* fetch all feeds in parallel */
+  const results = await Promise.all(feeds.map(f => fetchOneFeed(f)));
+  /* merge and sort by date, newest first */
+  let articles = results.flat()
+    .filter(a => a.title && a.url)
+    .sort((a,b) => new Date(b.publishedAt) - new Date(a.publishedAt))
+    .slice(0, 9);
+
+  if(articles.length) setCache(tab, articles);
+  return articles;
+}
+
+const FALLBACK_EMOJIS = ['📰','💡','🔍','📊','🧠','💼','🌍','⚡','🎯','📈'];
+function articleEmoji(i){ return FALLBACK_EMOJIS[i % FALLBACK_EMOJIS.length]; }
+function articleDate(dateStr){
+  if(!dateStr) return '';
+  try{
+    return new Date(dateStr).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+  }catch(e){ return ''; }
+}
+function truncate(str, n){ return str && str.length > n ? str.slice(0,n)+'…' : (str||''); }
+
+function showTab(tab,btn){
+  activeTab=tab;
+  document.querySelectorAll('.reads-tab').forEach(t=>t.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  renderReads();
+}
+
+async function renderReads(){
+  const c = document.getElementById('reads-container');
+  const tabData = TAB_FEEDS[activeTab];
+  if(!tabData) return;
+
+  c.innerHTML = `
+    <div style="text-align:center;padding:60px 20px;color:var(--ink-soft)">
+      <div class="spinner"></div>
+      <div style="font-family:'Fraunces',serif;font-size:18px;font-weight:300;color:var(--ink-mid);margin-top:12px">Fetching latest articles…</div>
+      <div style="font-size:13px;margin-top:6px">Live from BBC, Reuters, HBR, Guardian & more</div>
+    </div>`;
+
+  try{
+    const articles = await fetchNews(activeTab);
+
+    if(!articles.length){
+      c.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--ink-soft)">
+        <div style="font-size:36px;margin-bottom:12px">📭</div>
+        <div style="font-family:'Fraunces',serif;font-size:18px;color:var(--ink-mid)">No articles right now</div>
+        <div style="font-size:13px;margin-top:6px">Try refreshing in a moment</div>
+        <button onclick="clearCacheAndReload()" style="margin-top:16px;background:var(--mauve);color:#fff;border:none;padding:10px 22px;border-radius:50px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;">🔄 Try again</button>
+      </div>`;
+      return;
+    }
+
+    const featured = articles[0];
+    const rest = articles.slice(1);
+
+    c.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+        <div style="font-size:13px;color:var(--ink-soft)">🌍 Live feeds from BBC, Reuters, HBR, Guardian & more · Updates every 90 min</div>
+        <button onclick="clearCacheAndReload()" style="font-size:12px;color:var(--mauve);background:var(--mauve-light);border:1px solid var(--mauve-mid);padding:5px 14px;border-radius:50px;cursor:pointer;font-family:'Inter',sans-serif;">🔄 Refresh</button>
+      </div>
+      <div class="reads-grid">
+        <a class="article-card featured" href="${esc(featured.url)}" target="_blank" rel="noopener">
+          <div class="article-thumb" style="font-size:52px;background:${tabData.color}">${tabData.emoji}</div>
+          <div class="article-body">
+            <div class="article-source">${esc(featured.source)} · <span class="article-tag">Latest</span></div>
+            <div class="article-title">${esc(truncate(featured.title,120))}</div>
+            <div class="article-desc">${esc(truncate(featured.description,220))}</div>
+            <div class="article-meta">📅 ${articleDate(featured.publishedAt)}</div>
+          </div>
+        </a>
+        ${rest.map((a,i)=>`
+          <a class="article-card" href="${esc(a.url)}" target="_blank" rel="noopener">
+            <div class="article-thumb" style="font-size:44px;background:${tabData.color}">${articleEmoji(i+1)}</div>
+            <div class="article-body">
+              <div class="article-source">${esc(a.source)}</div>
+              <div class="article-title">${esc(truncate(a.title,100))}</div>
+              <div class="article-desc">${esc(truncate(a.description,160))}</div>
+              <div class="article-meta">📅 ${articleDate(a.publishedAt)}</div>
+            </div>
+          </a>`).join('')}
+      </div>`;
+
+  }catch(err){
+    console.error('RSS fetch error:',err);
+    c.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--ink-soft)">
+      <div style="font-size:36px;margin-bottom:12px">⚠️</div>
+      <div style="font-family:'Fraunces',serif;font-size:18px;color:var(--ink-mid)">Couldn't load articles</div>
+      <button onclick="renderReads()" style="margin-top:16px;background:var(--mauve);color:#fff;border:none;padding:10px 22px;border-radius:50px;font-size:14px;cursor:pointer;font-family:'Inter',sans-serif;">Try again</button>
+    </div>`;
+  }
+}
+
+function clearCacheAndReload(){
+  ['mindset','work','jobs'].forEach(t=>sessionStorage.removeItem(getCacheKey(t)));
+  renderReads();
+}
+
+/* ── BOOT ── */
+loadPosts();
+subscribeRealtime();
+
+/* ── SECRET ADMIN TRIGGERS ── */
+
+/* METHOD 1: Type "adminkey" anywhere on the page (not inside a text box) */
+(function(){
+  const secret = 'adminkey';
+  let typed = '';
+  let timer;
+  document.addEventListener('keydown', function(e){
+    const tag = document.activeElement.tagName.toLowerCase();
+    if(tag === 'input' || tag === 'textarea') return; /* ignore when typing in fields */
+    typed += e.key.toLowerCase();
+    if(typed.length > secret.length) typed = typed.slice(-secret.length);
+    clearTimeout(timer);
+    timer = setTimeout(()=>{ typed=''; }, 2000); /* reset if no key for 2 seconds */
+    if(typed === secret){
+      typed = '';
+      openAdmin();
+    }
+  });
+})();
+
+/* METHOD 2: Click the logo dot 3 times within 1.5 seconds */
+(function(){
+  let clicks = 0;
+  let timer;
+  const dot = document.querySelector('.wordmark-dot');
+  if(!dot) return;
+  dot.style.cursor = 'pointer';
+  dot.addEventListener('click', function(e){
+    e.stopPropagation();
+    clicks++;
+    clearTimeout(timer);
+    timer = setTimeout(()=>{ clicks = 0; }, 1500);
+    if(clicks >= 3){
+      clicks = 0;
+      openAdmin();
+    }
+  });
+})();
+</script>
+</body>
 </html>
