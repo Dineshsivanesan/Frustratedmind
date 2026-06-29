@@ -766,15 +766,12 @@ function setCache(tab, data){
 async function fetchNews(tab){
   const cached = getCached(tab);
   if(cached) return cached;
-
-  const q = TAB_QUERIES[tab].q;
-  /* No country filter = worldwide. language=english for readability */
-  const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(q)}&lang=en&max=9&apikey=${GNEWS_KEY}`;
-
+  /* Call Vercel serverless proxy — bypasses CORS completely */
+  const url = `/api/news?tab=${tab}`;
   const res = await fetch(url);
-  if(!res.ok) throw new Error('API error '+res.status);
+  if(!res.ok) throw new Error('HTTP '+res.status);
   const json = await res.json();
-  const articles = (json.articles || []).filter(a => a.title && a.url);
+  const articles = (json.articles||[]).filter(a=>a.title&&a.url);
   setCache(tab, articles);
   return articles;
 }
