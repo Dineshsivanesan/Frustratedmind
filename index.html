@@ -723,24 +723,24 @@ async function adminDelete(postId){
 }
 
 /* ── LIVE NEWS — NewsData.io ── */
-const NEWS_API_KEY = 'pub_5b298c2e88ee4a5b988156cea3e20610';
+const GNEWS_KEY = 'bb651e4c8a73c93e79b96c7975b1afb3';
 const NEWS_CACHE_MINS = 60; /* refresh articles every 60 minutes */
 
 const TAB_QUERIES = {
   mindset: {
-    q: 'mental health OR mindset OR resilience OR burnout OR stress OR wellbeing',
+    q: 'mental health mindset resilience burnout wellbeing',
     label: '🧠 Mindset',
     emoji: '🧠',
     color: '#EDE8FA',
   },
   work: {
-    q: 'workplace OR work crisis OR quiet quitting OR toxic workplace OR employee burnout OR remote work',
+    q: 'workplace burnout quiet quitting toxic work remote work',
     label: '💼 Work Crisis',
     emoji: '💼',
     color: '#FFF3E0',
   },
   jobs: {
-    q: 'job market OR layoffs OR hiring OR unemployment OR AI jobs OR career',
+    q: 'job market layoffs hiring unemployment career',
     label: '📈 Job Market',
     emoji: '📈',
     color: '#E7F0FB',
@@ -749,7 +749,7 @@ const TAB_QUERIES = {
 
 const newsCache = {};
 
-function getCacheKey(tab){ return 'fm_news_'+tab; }
+function getCacheKey(tab){ return 'fm_gnews_'+tab; }
 function getCached(tab){
   try{
     const raw = sessionStorage.getItem(getCacheKey(tab));
@@ -769,12 +769,12 @@ async function fetchNews(tab){
 
   const q = TAB_QUERIES[tab].q;
   /* No country filter = worldwide. language=english for readability */
-  const url = `https://newsdata.io/api/1/news?apikey=${NEWS_API_KEY}&q=${encodeURIComponent(q)}&language=english&size=10`;
+  const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(q)}&lang=en&max=9&apikey=${GNEWS_KEY}`;
 
   const res = await fetch(url);
   if(!res.ok) throw new Error('API error '+res.status);
   const json = await res.json();
-  const articles = (json.results || []).filter(a => a.title && a.link);
+  const articles = (json.articles || []).filter(a => a.title && a.url);
   setCache(tab, articles);
   return articles;
 }
@@ -831,23 +831,23 @@ async function renderReads(){
         <button onclick="clearCacheAndReload()" style="font-size:12px;color:var(--mauve);background:var(--mauve-light);border:1px solid var(--mauve-mid);padding:5px 14px;border-radius:50px;cursor:pointer;font-family:'Inter',sans-serif;">🔄 Refresh</button>
       </div>
       <div class="reads-grid">
-        <a class="article-card featured" href="${featured.link}" target="_blank" rel="noopener">
+        <a class="article-card featured" href="${featured.url}" target="_blank" rel="noopener">
           <div class="article-thumb" style="font-size:52px;background:${tabData.color}">${tabData.emoji}</div>
           <div class="article-body">
-            <div class="article-source">${esc(featured.source_id||'News')} · <span class="article-tag">Featured</span></div>
+            <div class="article-source">${esc((featured.source&&featured.source.name)||'News')} · <span class="article-tag">Featured</span></div>
             <div class="article-title">${esc(truncate(featured.title,120))}</div>
-            <div class="article-desc">${esc(truncate(featured.description||featured.content||'',200))}</div>
-            <div class="article-meta">📅 ${articleDate(featured.pubDate)} · ${featured.country?featured.country.join(', ').toUpperCase():' Worldwide'}</div>
+            <div class="article-desc">${esc(truncate(featured.description||'',200))}</div>
+            <div class="article-meta">📅 ${articleDate(featured.publishedAt)} · Worldwide</div>
           </div>
         </a>
         ${rest.map((a,i)=>`
-          <a class="article-card" href="${a.link}" target="_blank" rel="noopener">
+          <a class="article-card" href="${a.url}" target="_blank" rel="noopener">
             <div class="article-thumb" style="font-size:44px;background:${tabData.color}">${articleEmoji(i+1)}</div>
             <div class="article-body">
-              <div class="article-source">${esc(a.source_id||'News')} ${a.country?'· <span class=\"article-tag\">'+a.country[0].toUpperCase()+'</span>':''}</div>
+              <div class="article-source">${esc((a.source&&a.source.name)||'News')} </div>
               <div class="article-title">${esc(truncate(a.title,100))}</div>
-              <div class="article-desc">${esc(truncate(a.description||a.content||'',160))}</div>
-              <div class="article-meta">📅 ${articleDate(a.pubDate)}</div>
+              <div class="article-desc">${esc(truncate(a.description||'',160))}</div>
+              <div class="article-meta">📅 ${articleDate(a.publishedAt)}</div>
             </div>
           </a>`).join('')}
       </div>`;
