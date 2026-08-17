@@ -290,13 +290,16 @@ textarea{min-height:120px;}
   <div class="reads-hero">
     <div class="reads-hero-label">📚 Curated for you</div>
     <h2 class="reads-hero-title">Understand what you're going through — <em>with research</em></h2>
-    <p class="reads-hero-sub">Live articles on mindset, work culture, and the job market.</p>
+    <p class="reads-hero-sub">Hand-picked articles on mindset, work culture, and the job market.</p>
   </div>
   <div class="reads-layout">
-    <div class="reads-tabs">
-      <button class="reads-tab active" id="rtab-mindset" onclick="showReadTab('mindset')">🧠 Mindset</button>
-      <button class="reads-tab" id="rtab-work" onclick="showReadTab('work')">💼 Work Crisis</button>
-      <button class="reads-tab" id="rtab-jobs" onclick="showReadTab('jobs')">📈 Job Market</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+      <div class="reads-tabs" style="margin-bottom:0">
+        <button class="reads-tab active" id="rtab-mindset" onclick="showReadTab('mindset')">🧠 Mindset</button>
+        <button class="reads-tab" id="rtab-work" onclick="showReadTab('work')">💼 Work Crisis</button>
+        <button class="reads-tab" id="rtab-jobs" onclick="showReadTab('jobs')">📈 Job Market</button>
+      </div>
+      <button class="btn-primary" onclick="openArticleAdmin()"><span style="font-size:16px;line-height:1">+</span> Add article</button>
     </div>
     <div id="reads-container"><div class="state-msg"><div class="spinner"></div><div class="state-h">Loading articles…</div></div></div>
   </div>
@@ -386,14 +389,19 @@ const CATS = {
 };
 const AV = ['#7C5CBF','#C2516A','#4A9B72','#3A7DC9','#C47B1A','#9B5EA0','#5C8A9B'];
 const ANON = ['Stargazer','Quiet Storm','Midnight','Ember','Wanderer','Echo','Solstice','Dusk'];
-const RSS = 'https://api.rss2json.com/v1/api.json?rss_url=';
-const FEEDS = {
-  mindset:['https://feeds.feedburner.com/PsychologyToday','https://greatergood.berkeley.edu/feeds/news'],
-  work:['https://feeds.hbr.org/harvardbusiness','https://feeds.feedburner.com/fastcompany/headlines'],
-  jobs:['https://www.theguardian.com/money/work-and-careers/rss','https://rss.nytimes.com/services/xml/rss/nyt/Business.xml']
+
+/* ═══════════════════════════════════
+   READS & RESEARCH — CONFIG
+   Articles are no longer pulled from the internet (RSS). They're
+   authored by you (the admin) through the admin panel and stored in
+   the Supabase "articles" table — see the SQL you were given to
+   create that table before this will work.
+═══════════════════════════════════ */
+const READ_CATS = {
+  mindset:{label:'Mindset',emoji:'🧠',color:'#EDE8FA'},
+  work:{label:'Work Crisis',emoji:'💼',color:'#FFF3E0'},
+  jobs:{label:'Job Market',emoji:'📈',color:'#E7F0FB'}
 };
-const FEED_COLORS = {mindset:'#EDE8FA',work:'#FFF3E0',jobs:'#E7F0FB'};
-const FEED_EMOJI = {mindset:'🧠',work:'💼',jobs:'📈'};
 
 /* ═══════════════════════════════════
    STATE
@@ -489,9 +497,21 @@ async function loadPosts(){
     }catch(e){}
     renderPosts();renderTrending();
   }catch(err){
-    console.error('loadPosts error:',err);
-    document.getElementById('posts-container').innerHTML='<div class="state-msg"><div class="state-icon">⚠️</div><div class="state-h">Could not load posts</div><p class="state-p">'+esc(err.message)+'</p></div>';
+    const readable=describeError(err);
+    console.error('loadPosts error:',readable,err);
+    document.getElementById('posts-container').innerHTML='<div class="state-msg"><div class="state-icon">⚠️</div><div class="state-h">Could not load posts</div><p class="state-p">'+esc(readable)+'</p></div>';
   }
+}
+
+/* Turn a Supabase/Postgrest error (a plain object, not an Error instance)
+   or any thrown value into readable text instead of "[object Object]" */
+function describeError(err){
+  if(!err)return'Unknown error';
+  if(typeof err==='string')return err;
+  if(err instanceof Error)return err.message;
+  const parts=[err.message,err.details,err.hint,err.code].filter(Boolean);
+  if(parts.length)return parts.join(' — ');
+  try{return JSON.stringify(err);}catch(e){return String(err);}
 }
 
 function getFiltered(){
@@ -593,7 +613,7 @@ async function submitPost(){
     allPosts.unshift(data);
     closeModal();renderPosts();renderTrending();
     toast('Your feelings are heard 🤍');
-  }catch(err){console.error(err);toast('Something went wrong — try again');}
+  }catch(err){console.error('submitPost error:',describeError(err),err);toast('Error: '+describeError(err));}
   finally{submitting=false;btn.textContent='Post it →';btn.disabled=false;}
 }
 
@@ -611,7 +631,7 @@ async function handleReaction(postId,emoji){
       if(data)post.reactions=[...(post.reactions||[]),data];
     }
     renderPosts();
-  }catch(err){console.error(err);}
+  }catch(err){console.error('handleReaction error:',describeError(err),err);}
 }
 
 async function addComment(postId){
@@ -627,7 +647,7 @@ async function addComment(postId){
     openComments[postId]=true;
     renderPosts();
     setTimeout(()=>{const el=document.getElementById('ci-'+postId);if(el)el.focus();},30);
-  }catch(err){console.error(err);toast('Could not post comment');}
+  }catch(err){console.error('addComment error:',describeError(err),err);toast('Could not post comment: '+describeError(err));}
 }
 
 function sharePost(postId){
@@ -656,7 +676,7 @@ async function submitFlag(){
     await db.from('reports').insert([{post_id:flagTargetId,reason:selectedFlagReason,session_id:sid()}]);
     flaggedPosts[flagTargetId]=(flaggedPosts[flagTargetId]||0)+1;
     closeFlagModal();renderPosts();toast('Report submitted. Thank you 🤍');
-  }catch(err){console.error(err);toast('Could not submit report');}
+  }catch(err){console.error('submitFlag error:',describeError(err),err);toast('Could not submit report: '+describeError(err));}
 }
 
 /* ADMIN */
@@ -677,7 +697,8 @@ function renderAdminBody(){
   renderAdminPanel();
 }
 function checkPw(){
-  if(document.getElementById('admin-pw').value===ADMIN_PASSWORD){adminAuth=true;renderAdminPanel();}
+  const entered=document.getElementById('admin-pw').value.trim();
+  if(entered===ADMIN_PASSWORD){adminAuth=true;renderAdminPanel();}
   else{document.getElementById('pw-err').style.display='block';}
 }
 function renderAdminPanel(){
@@ -685,6 +706,7 @@ function renderAdminPanel(){
     <div class="admin-tabs">
       <button class="admin-tab ${activeAdminTab==='all'?'active':''}" onclick="switchAdminTab('all',this)">All Posts (${allPosts.length})</button>
       <button class="admin-tab ${activeAdminTab==='flagged'?'active':''}" onclick="switchAdminTab('flagged',this)">🚩 Flagged</button>
+      <button class="admin-tab ${activeAdminTab==='articles'?'active':''}" onclick="switchAdminTab('articles',this)">📚 Articles</button>
     </div>
     <div id="admin-list"></div>`;
   renderAdminList();
@@ -692,10 +714,11 @@ function renderAdminPanel(){
 function switchAdminTab(tab,btn){
   activeAdminTab=tab;
   document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
+  if(btn)btn.classList.add('active');
   renderAdminList();
 }
 function renderAdminList(){
+  if(activeAdminTab==='articles'){renderArticlesAdminTab();return;}
   const el=document.getElementById('admin-list');
   let list=activeAdminTab==='flagged'?allPosts.filter(p=>flaggedPosts[p.id]>0):allPosts;
   if(!list.length){el.innerHTML='<div class="admin-empty">Nothing here yet.</div>';return;}
@@ -717,7 +740,7 @@ async function adminDelete(id){
     delete flaggedPosts[id];
     renderPosts();renderTrending();renderAdminList();
     toast('Post deleted');
-  }catch(err){console.error(err);toast('Delete failed');}
+  }catch(err){console.error('adminDelete error:',describeError(err),err);toast('Delete failed: '+describeError(err));}
 }
 
 /* realtime */
@@ -728,9 +751,12 @@ function subscribeRealtime(){
 }
 
 /* ═══════════════════════════════════
-   READS & RESEARCH — RSS FEEDS
+   READS & RESEARCH — ADMIN-AUTHORED ARTICLES
+   Read from the Supabase "articles" table. Nothing is fetched from
+   the internet — every card here was written by you via the admin
+   panel's "+ Add article" flow.
 ═══════════════════════════════════ */
-const rssCache={};
+const articlesCache={};
 
 function showReadTab(tab){
   activeReadTab=tab;
@@ -739,66 +765,136 @@ function showReadTab(tab){
   loadReads();
 }
 
-async function loadReads(){
-  if(rssCache[activeReadTab]){renderReads(rssCache[activeReadTab]);return;}
-  document.getElementById('reads-container').innerHTML='<div class="state-msg"><div class="spinner"></div><div class="state-h">Fetching latest articles…</div><p class="state-p">Live from BBC, Reuters, HBR, Guardian & more</p></div>';
-  const feeds=FEEDS[activeReadTab]||[];
-  const results=await Promise.all(feeds.map(async url=>{
-    try{
-      const r=await fetch(RSS+''+encodeURIComponent(url)+'&count=5');
-      const j=await r.json();
-      if(j.status!=='ok')return[];
-      return(j.items||[]).map(a=>({
-        title:a.title,
-        desc:(a.description||'').replace(/<[^>]+>/g,'').slice(0,200),
-        url:a.link,
-        source:j.feed?j.feed.title:'News',
-        date:a.pubDate
-      }));
-    }catch(e){return[];}
-  }));
-  const articles=results.flat().filter(a=>a.title&&a.url)
-    .sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,9);
-  rssCache[activeReadTab]=articles;
-  renderReads(articles);
+async function loadReads(force){
+  if(!force && articlesCache[activeReadTab]){renderReads(articlesCache[activeReadTab]);return;}
+  document.getElementById('reads-container').innerHTML='<div class="state-msg"><div class="spinner"></div><div class="state-h">Loading articles…</div></div>';
+  try{
+    const{data,error}=await db.from('articles')
+      .select('id,title,description,url,source,category,created_at')
+      .eq('category',activeReadTab)
+      .order('created_at',{ascending:false})
+      .limit(30);
+    if(error)throw error;
+    articlesCache[activeReadTab]=data||[];
+    renderReads(articlesCache[activeReadTab]);
+  }catch(err){
+    console.error('loadReads error:',describeError(err),err);
+    document.getElementById('reads-container').innerHTML='<div class="state-msg"><div class="state-icon">⚠️</div><div class="state-h">Could not load articles</div><p class="state-p">'+esc(describeError(err))+'</p></div>';
+  }
 }
 
 function renderReads(articles){
   const c=document.getElementById('reads-container');
-  const color=FEED_COLORS[activeReadTab];
-  const emoji=FEED_EMOJI[activeReadTab];
+  const cat=READ_CATS[activeReadTab];
   const EMOJIS=['📰','💡','🔍','📊','🧠','💼','🌍','⚡','🎯'];
   if(!articles||!articles.length){
-    c.innerHTML='<div class="state-msg"><div class="state-icon">📭</div><div class="state-h">No articles right now</div><button onclick="delete rssCache[activeReadTab];loadReads()" style="margin-top:16px;background:var(--mauve);color:#fff;border:none;padding:10px 22px;border-radius:50px;font-size:14px;cursor:pointer;font-family:Inter,sans-serif">Try again</button></div>';
+    c.innerHTML='<div class="state-msg"><div class="state-icon">📭</div><div class="state-h">No articles yet</div><p class="state-p">Use "+ Add article" above to post the first one in '+esc(cat.label)+'.</p></div>';
     return;
   }
   const f=articles[0],rest=articles.slice(1);
+  const card=(a,size)=>{
+    const body=`
+      <div class="article-thumb" style="font-size:${size==='big'?52:44}px;background:${cat.color}">${size==='big'?cat.emoji:(EMOJIS[Math.floor(Math.random()*EMOJIS.length)])}</div>
+      <div class="article-body">
+        <div class="article-source">${esc(a.source||cat.label)}${size==='big'?' <span class="article-tag">Latest</span>':''}</div>
+        <div class="article-title">${esc(trunc(a.title,size==='big'?120:100))}</div>
+        <div class="article-desc">${esc(trunc(a.description||'',size==='big'?220:160))}</div>
+        <div class="article-meta">📅 ${niceDate(a.created_at)}</div>
+      </div>`;
+    return a.url
+      ? `<a class="article-card${size==='big'?' featured':''}" href="${esc(a.url)}" target="_blank" rel="noopener">${body}</a>`
+      : `<div class="article-card${size==='big'?' featured':''}">${body}</div>`;
+  };
   c.innerHTML=`
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
-      <div style="font-size:13px;color:var(--ink-soft)">🌍 Live worldwide feeds</div>
-      <button onclick="delete rssCache[activeReadTab];loadReads()" style="font-size:12px;color:var(--mauve);background:var(--mauve-light);border:1px solid var(--mauve-mid);padding:5px 14px;border-radius:50px;cursor:pointer;font-family:Inter,sans-serif">🔄 Refresh</button>
+    <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:20px">
+      <button onclick="loadReads(true)" style="font-size:12px;color:var(--mauve);background:var(--mauve-light);border:1px solid var(--mauve-mid);padding:5px 14px;border-radius:50px;cursor:pointer;font-family:Inter,sans-serif">🔄 Refresh</button>
     </div>
     <div class="reads-grid">
-      <a class="article-card featured" href="${esc(f.url)}" target="_blank" rel="noopener">
-        <div class="article-thumb" style="font-size:52px;background:${color}">${emoji}</div>
-        <div class="article-body">
-          <div class="article-source">${esc(f.source)} <span class="article-tag">Latest</span></div>
-          <div class="article-title">${esc(trunc(f.title,120))}</div>
-          <div class="article-desc">${esc(trunc(f.desc,220))}</div>
-          <div class="article-meta">📅 ${niceDate(f.date)}</div>
-        </div>
-      </a>
-      ${rest.map((a,i)=>`
-        <a class="article-card" href="${esc(a.url)}" target="_blank" rel="noopener">
-          <div class="article-thumb" style="font-size:44px;background:${color}">${EMOJIS[i+1]||'📰'}</div>
-          <div class="article-body">
-            <div class="article-source">${esc(a.source)}</div>
-            <div class="article-title">${esc(trunc(a.title,100))}</div>
-            <div class="article-desc">${esc(trunc(a.desc,160))}</div>
-            <div class="article-meta">📅 ${niceDate(a.date)}</div>
-          </div>
-        </a>`).join('')}
+      ${card(f,'big')}
+      ${rest.map(a=>card(a,'small')).join('')}
     </div>`;
+}
+
+/* ── Admin: add / delete articles ── */
+function openArticleAdmin(){
+  activeAdminTab='articles';
+  openAdmin();
+}
+async function submitArticle(){
+  const title=document.getElementById('art-title').value.trim();
+  const description=document.getElementById('art-desc').value.trim();
+  const url=document.getElementById('art-url').value.trim();
+  const source=document.getElementById('art-source').value.trim();
+  const category=document.getElementById('art-category').value;
+  if(!title){toast('Give the article a title first');return;}
+  const btn=document.getElementById('art-submit-btn');
+  btn.disabled=true;btn.textContent='Posting…';
+  try{
+    const{error}=await db.from('articles').insert([{title,description,url:url||null,source:source||null,category}]);
+    if(error)throw error;
+    delete articlesCache[category];
+    toast('Article posted 📚');
+    document.getElementById('art-title').value='';
+    document.getElementById('art-desc').value='';
+    document.getElementById('art-url').value='';
+    document.getElementById('art-source').value='';
+    renderArticlesAdminTab();
+  }catch(err){
+    console.error('submitArticle error:',describeError(err),err);
+    toast('Could not post article: '+describeError(err));
+  }finally{
+    btn.disabled=false;btn.textContent='Post article';
+  }
+}
+async function adminDeleteArticle(id,category){
+  if(!confirm('Delete this article permanently?'))return;
+  try{
+    const{error}=await db.from('articles').delete().eq('id',id);
+    if(error)throw error;
+    delete articlesCache[category];
+    toast('Article deleted');
+    renderArticlesAdminTab();
+  }catch(err){
+    console.error('adminDeleteArticle error:',describeError(err),err);
+    toast('Delete failed: '+describeError(err));
+  }
+}
+let adminArticlesList=null;
+async function renderArticlesAdminTab(){
+  const el=document.getElementById('admin-list');
+  if(!el)return;
+  const formHTML=`
+    <div class="field"><div class="field-label">Title</div><input type="text" id="art-title" maxlength="150" placeholder="Article title"></div>
+    <div class="field"><div class="field-label">Description</div><textarea id="art-desc" maxlength="400" style="min-height:70px" placeholder="Short summary shown on the card"></textarea></div>
+    <div class="field"><div class="field-label">Link (optional — leave blank for a text-only post)</div><input type="text" id="art-url" placeholder="https://…"></div>
+    <div class="field"><div class="field-label">Source / author (optional)</div><input type="text" id="art-source" maxlength="60" placeholder="e.g. Your name, or a publication"></div>
+    <div class="field"><div class="field-label">Category</div>
+      <select id="art-category" style="width:100%;font-family:'Inter',sans-serif;font-size:15px;color:var(--ink);border:1px solid var(--border);border-radius:10px;padding:12px 14px;background:var(--input-bg);outline:none">
+        <option value="mindset">🧠 Mindset</option>
+        <option value="work">💼 Work Crisis</option>
+        <option value="jobs">📈 Job Market</option>
+      </select>
+    </div>
+    <button class="btn-submit" id="art-submit-btn" onclick="submitArticle()">Post article</button>
+    <div style="border-top:1px solid var(--border);margin:22px 0 14px"></div>`;
+  el.innerHTML=formHTML+'<div id="art-existing-list" style="font-size:13px;color:var(--ink-soft)">Loading existing articles…</div>';
+  try{
+    const{data,error}=await db.from('articles').select('id,title,category,source,created_at').order('created_at',{ascending:false}).limit(100);
+    if(error)throw error;
+    adminArticlesList=data||[];
+  }catch(err){
+    document.getElementById('art-existing-list').innerHTML='Could not load existing articles: '+esc(describeError(err));
+    return;
+  }
+  const listEl=document.getElementById('art-existing-list');
+  if(!adminArticlesList.length){listEl.innerHTML='No articles posted yet.';return;}
+  listEl.innerHTML=adminArticlesList.map(a=>`<div class="admin-post">
+    <div class="admin-post-body">
+      <div class="admin-post-text">${esc(a.title)}</div>
+      <div class="admin-post-meta">${esc(READ_CATS[a.category]?READ_CATS[a.category].label:a.category)} · ${esc(a.source||'—')} · ${relTime(a.created_at)}</div>
+    </div>
+    <button class="btn-danger" onclick="adminDeleteArticle('${a.id}','${a.category}')">Delete</button>
+  </div>`).join('');
 }
 
 /* ═══════════════════════════════════
